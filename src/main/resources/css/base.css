@@ -1,0 +1,36 @@
+/*
+ * Base structural styles shared by both themes. Color values are supplied by
+ * theme-light.css / theme-dark.css via the -fx-* "token" variables referenced below
+ * (JavaFX CSS does not support custom properties, so each theme file redefines the same
+ * selectors with its own literal values — see 09-ColorPalette.md for the source tokens).
+ */
+
+.app-root {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.bootstrap-card {
+    -fx-background-radius: 12;
+    -fx-background-color: -color-surface;
+    -fx-effect: dropshadow(gaussian, rgba(16,24,40,0.12), 24, 0, 0, 4);
+    -fx-max-width: 520;
+}
+
+.brand-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -color-primary;
+}
+
+.status-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-text-secondary;
+    -fx-text-alignment: center;
+}
+
+.primary-button {
+    -fx-background-radius: 8;
+    -fx-padding: 10 20 10 20;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}

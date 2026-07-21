@@ -1,0 +1,19 @@
+/* Light theme tokens — see docs/09-ColorPalette.md for the source palette. */
+
+.root {
+    -color-primary: #3B5BFB;
+    -color-primary-variant: #2A3EB1;
+    -color-secondary: #00BFA6;
+    -color-accent: #FF6B6B;
+
+    -color-bg: #F5F7FB;
+    -color-surface: #FFFFFF;
+    -color-surface-alt: #EEF1F8;
+    -color-border: #E1E5F0;
+
+    -color-text-primary: #1B1F2A;
+    -color-text-secondary: #5B6478;
+    -color-text-disabled: #A6ADBE;
+
+    -fx-background-color: -color-bg;
+}

@@ -1,0 +1,19 @@
+/* Dark theme tokens — see docs/09-ColorPalette.md for the source palette. */
+
+.root {
+    -color-primary: #7C93FF;
+    -color-primary-variant: #4C63D6;
+    -color-secondary: #37E4C8;
+    -color-accent: #FF8A8A;
+
+    -color-bg: #0F1420;
+    -color-surface: #1A2032;
+    -color-surface-alt: #232A3F;
+    -color-border: #2C3448;
+
+    -color-text-primary: #EAF0FF;
+    -color-text-secondary: #9AA5C0;
+    -color-text-disabled: #5C6478;
+
+    -fx-background-color: -color-bg;
+}

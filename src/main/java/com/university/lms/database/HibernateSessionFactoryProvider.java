@@ -1,0 +1,39 @@
+package com.university.lms.database;
+
+import javax.sql.DataSource;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Environment;
+import org.hibernate.service.ServiceRegistry;
+
+import com.university.lms.config.ConfigurationManager;
+
+/**
+ * Builds the single application-wide Hibernate {@link SessionFactory}, reusing the already
+ * constructed {@link DataSource} (HikariCP) rather than letting Hibernate open its own pool.
+ * Entity classes are registered here as they are introduced module-by-module in later phases.
+ */
+public final class HibernateSessionFactoryProvider {
+
+    private HibernateSessionFactoryProvider() {
+    }
+
+    public static SessionFactory build(ConfigurationManager config, DataSource dataSource) {
+        StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
+        registryBuilder.applySetting(Environment.DATASOURCE, dataSource);
+        registryBuilder.applySetting(Environment.DIALECT, config.db("hibernate.dialect"));
+        registryBuilder.applySetting(Environment.HBM2DDL_AUTO, config.db("hibernate.hbm2ddl.auto", "validate"));
+        registryBuilder.applySetting(Environment.SHOW_SQL, config.db("hibernate.show_sql", "false"));
+        registryBuilder.applySetting(Environment.FORMAT_SQL, config.db("hibernate.format_sql", "true"));
+
+        ServiceRegistry serviceRegistry = registryBuilder.build();
+        MetadataSources metadataSources = new MetadataSources(serviceRegistry);
+
+        // Entity classes are added here as each module's persistence layer is implemented,
+        // e.g. metadataSources.addAnnotatedClass(User.class);
+
+        return metadataSources.buildMetadata().buildSessionFactory();
+    }
+}
