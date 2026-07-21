@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="20" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.people.MembershipTypeManagementController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <VBox spacing="10" HBox.hgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT">
+            <Label text="Membership Types" styleClass="brand-title-small"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Hyperlink text="Back to Home" onAction="#onBack"/>
+        </HBox>
+        <TableView fx:id="typeTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="nameColumn" text="Name" prefWidth="160"/>
+                <TableColumn fx:id="borrowLimitColumn" text="Max Borrow" prefWidth="100"/>
+                <TableColumn fx:id="loanPeriodColumn" text="Loan Period (days)" prefWidth="140"/>
+                <TableColumn fx:id="finePerDayColumn" text="Fine / Day" prefWidth="100"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox spacing="8" prefWidth="280" styleClass="auth-card">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <Label text="Add Membership Type" styleClass="status-label"/>
+        <TextField fx:id="nameField" promptText="Name"/>
+        <TextField fx:id="maxBorrowLimitField" promptText="Max Borrow Limit"/>
+        <TextField fx:id="loanPeriodDaysField" promptText="Loan Period (days)"/>
+        <TextField fx:id="finePerDayField" promptText="Fine Per Day"/>
+        <TextField fx:id="gracePeriodDaysField" promptText="Grace Period (days)"/>
+        <TextField fx:id="renewalLimitField" promptText="Renewal Limit"/>
+        <Button text="Save" onAction="#onSave" styleClass="primary-button" maxWidth="Infinity"/>
+        <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
+    </VBox>
+</HBox>

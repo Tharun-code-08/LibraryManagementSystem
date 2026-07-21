@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="14" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.people.StudentBulkImportController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Bulk Import Students" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Hyperlink text="Back to Students" onAction="#onBack"/>
+    </HBox>
+
+    <Label text="Excel columns: username, email, studentId, rollNumber, department, year, semester, phone"
+           wrapText="true" styleClass="status-label"/>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <Button text="Choose Excel File" onAction="#onChooseFile"/>
+        <Label fx:id="selectedFileLabel"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Button fx:id="importButton" text="Import" onAction="#onImport" styleClass="primary-button"/>
+    </HBox>
+
+    <Label fx:id="summaryLabel" styleClass="status-label"/>
+    <ListView fx:id="rejectedRowsList" VBox.vgrow="ALWAYS"/>
+</VBox>

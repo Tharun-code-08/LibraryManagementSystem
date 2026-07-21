@@ -53,6 +53,17 @@ mvn test
   (inline author/publisher creation, nested-category picker), a nested Category management
   screen, and a Bulk Import screen — all reachable from the authenticated shell's "Book Catalog"
   quick action.
+- **Phase 3 — People Management**: complete. `Student`/`Faculty` (1:1 `User` profile extensions)
+  and `MembershipType`/`Membership` entities and repositories; `StudentService` (registration —
+  creates a linked `User` with the STUDENT role plus an optional initial membership — update,
+  status changes, keyword+department+year+status search with pagination, and Excel bulk import
+  via Apache POI with a per-row rejected-rows report) and `FacultyService` (registration/update/
+  listing); `MembershipService` (assign-or-renew, extending from the current expiry when still
+  active) and `MembershipTypeService` for borrow-limit/loan-period/fine-rule reference data. UI:
+  a searchable/paginated Student directory with an Add/Edit form (branch + membership-type
+  pickers, photo upload), a Faculty directory with its own Add/Edit form, a Membership Types
+  management screen, and a Student Bulk Import screen — all reachable from the authenticated
+  shell's quick actions.
 
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 3 — People Management: Students, Faculty, Membership).
+(Phase 4 — Circulation: Issue / Return / Reservation).

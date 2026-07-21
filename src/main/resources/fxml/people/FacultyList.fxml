@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.people.FacultyListController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Label text="Faculty" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Hyperlink text="Back to Home" onAction="#onBack"/>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT">
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Button text="+ Add Faculty" onAction="#onAddFaculty" styleClass="primary-button"/>
+    </HBox>
+
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+
+    <TableView fx:id="facultyTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="facultyIdColumn" text="Faculty ID" prefWidth="110"/>
+            <TableColumn fx:id="nameColumn" text="Username" prefWidth="140"/>
+            <TableColumn fx:id="departmentColumn" text="Department" prefWidth="160"/>
+            <TableColumn fx:id="designationColumn" text="Designation" prefWidth="140"/>
+            <TableColumn fx:id="membershipColumn" text="Membership" prefWidth="140"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="90"/>
+        </columns>
+    </TableView>
+</VBox>

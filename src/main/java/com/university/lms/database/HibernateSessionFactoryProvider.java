@@ -15,10 +15,14 @@ import com.university.lms.entity.Book;
 import com.university.lms.entity.BookCopy;
 import com.university.lms.entity.Branch;
 import com.university.lms.entity.Category;
+import com.university.lms.entity.Faculty;
+import com.university.lms.entity.Membership;
+import com.university.lms.entity.MembershipType;
 import com.university.lms.entity.PasswordResetToken;
 import com.university.lms.entity.Permission;
 import com.university.lms.entity.Publisher;
 import com.university.lms.entity.Role;
+import com.university.lms.entity.Student;
 import com.university.lms.entity.Tag;
 import com.university.lms.entity.User;
 import com.university.lms.entity.UserSession;
@@ -58,6 +62,10 @@ public final class HibernateSessionFactoryProvider {
         metadataSources.addAnnotatedClass(Tag.class);
         metadataSources.addAnnotatedClass(Book.class);
         metadataSources.addAnnotatedClass(BookCopy.class);
+        metadataSources.addAnnotatedClass(Student.class);
+        metadataSources.addAnnotatedClass(Faculty.class);
+        metadataSources.addAnnotatedClass(MembershipType.class);
+        metadataSources.addAnnotatedClass(Membership.class);
 
         return metadataSources.buildMetadata().buildSessionFactory();
     }

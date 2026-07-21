@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.people.StudentListController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Label text="Students" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Hyperlink text="Back to Home" onAction="#onBack"/>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <TextField fx:id="searchField" promptText="Search by username, student ID, or roll number" HBox.hgrow="ALWAYS"/>
+        <Button text="Search" onAction="#onSearch"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Button text="Bulk Import (Excel)" onAction="#onBulkImport"/>
+        <Button text="+ Add Student" onAction="#onAddStudent" styleClass="primary-button"/>
+    </HBox>
+
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+
+    <TableView fx:id="studentTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="studentIdColumn" text="Student ID" prefWidth="110"/>
+            <TableColumn fx:id="nameColumn" text="Username" prefWidth="140"/>
+            <TableColumn fx:id="rollNumberColumn" text="Roll Number" prefWidth="120"/>
+            <TableColumn fx:id="departmentColumn" text="Department" prefWidth="150"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+            <TableColumn fx:id="membershipColumn" text="Membership" prefWidth="140"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="90"/>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER" spacing="12">
+        <Button fx:id="prevButton" text="◀ Previous" onAction="#onPrevPage"/>
+        <Label fx:id="pageLabel"/>
+        <Button fx:id="nextButton" text="Next ▶" onAction="#onNextPage"/>
+    </HBox>
+</VBox>

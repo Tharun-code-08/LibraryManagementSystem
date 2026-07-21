@@ -15,10 +15,14 @@ import com.university.lms.repository.BookCopyRepository;
 import com.university.lms.repository.BookRepository;
 import com.university.lms.repository.BranchRepository;
 import com.university.lms.repository.CategoryRepository;
+import com.university.lms.repository.FacultyRepository;
+import com.university.lms.repository.MembershipRepository;
+import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
 import com.university.lms.repository.PublisherRepository;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.SessionRepository;
+import com.university.lms.repository.StudentRepository;
 import com.university.lms.repository.TagRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.repository.impl.HibernateAuditLogRepository;
@@ -27,10 +31,14 @@ import com.university.lms.repository.impl.HibernateBookCopyRepository;
 import com.university.lms.repository.impl.HibernateBookRepository;
 import com.university.lms.repository.impl.HibernateBranchRepository;
 import com.university.lms.repository.impl.HibernateCategoryRepository;
+import com.university.lms.repository.impl.HibernateFacultyRepository;
+import com.university.lms.repository.impl.HibernateMembershipRepository;
+import com.university.lms.repository.impl.HibernateMembershipTypeRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
 import com.university.lms.repository.impl.HibernatePublisherRepository;
 import com.university.lms.repository.impl.HibernateRoleRepository;
 import com.university.lms.repository.impl.HibernateSessionRepository;
+import com.university.lms.repository.impl.HibernateStudentRepository;
 import com.university.lms.repository.impl.HibernateTagRepository;
 import com.university.lms.repository.impl.HibernateUserRepository;
 import com.university.lms.security.AuthContext;
@@ -51,9 +59,18 @@ import com.university.lms.service.catalog.impl.AuthorServiceImpl;
 import com.university.lms.service.catalog.impl.BookServiceImpl;
 import com.university.lms.service.catalog.impl.CategoryServiceImpl;
 import com.university.lms.service.catalog.impl.PublisherServiceImpl;
+import com.university.lms.service.people.FacultyService;
+import com.university.lms.service.people.MembershipService;
+import com.university.lms.service.people.MembershipTypeService;
+import com.university.lms.service.people.StudentService;
+import com.university.lms.service.people.impl.FacultyServiceImpl;
+import com.university.lms.service.people.impl.MembershipServiceImpl;
+import com.university.lms.service.people.impl.MembershipTypeServiceImpl;
+import com.university.lms.service.people.impl.StudentServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
+import com.university.lms.util.FileStorageUtil;
 import com.university.lms.util.QrCodeGenerator;
 
 /**
@@ -87,6 +104,10 @@ public final class AppContext {
     private final BookRepository bookRepository;
     private final BookCopyRepository bookCopyRepository;
     private final BranchRepository branchRepository;
+    private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
+    private final MembershipTypeRepository membershipTypeRepository;
+    private final MembershipRepository membershipRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -95,6 +116,7 @@ public final class AppContext {
     private final RememberMeStore rememberMeStore;
     private final BarcodeGenerator barcodeGenerator;
     private final QrCodeGenerator qrCodeGenerator;
+    private final FileStorageUtil photoStorageUtil;
 
     private final AuditLogService auditLogService;
     private final AuthService authService;
@@ -102,6 +124,10 @@ public final class AppContext {
     private final PublisherService publisherService;
     private final CategoryService categoryService;
     private final BookService bookService;
+    private final MembershipTypeService membershipTypeService;
+    private final MembershipService membershipService;
+    private final StudentService studentService;
+    private final FacultyService facultyService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -126,6 +152,10 @@ public final class AppContext {
         this.bookRepository = new HibernateBookRepository(sessionFactory);
         this.bookCopyRepository = new HibernateBookCopyRepository(sessionFactory);
         this.branchRepository = new HibernateBranchRepository(sessionFactory);
+        this.studentRepository = new HibernateStudentRepository(sessionFactory);
+        this.facultyRepository = new HibernateFacultyRepository(sessionFactory);
+        this.membershipTypeRepository = new HibernateMembershipTypeRepository(sessionFactory);
+        this.membershipRepository = new HibernateMembershipRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -135,6 +165,7 @@ public final class AppContext {
         this.rememberMeStore = new RememberMeStore();
         this.barcodeGenerator = new BarcodeGenerator(Path.of(configurationManager.app("app.assets.barcodes-directory", "./generated/barcodes")));
         this.qrCodeGenerator = new QrCodeGenerator(Path.of(configurationManager.app("app.assets.qrcodes-directory", "./generated/qrcodes")));
+        this.photoStorageUtil = new FileStorageUtil(Path.of(configurationManager.app("app.assets.photos-directory", "./generated/photos")));
 
         this.auditLogService = new AuditLogServiceImpl(auditLogRepository);
         this.authService = new AuthServiceImpl(
@@ -147,6 +178,16 @@ public final class AppContext {
                 bookRepository, bookCopyRepository, authorRepository, publisherRepository,
                 categoryRepository, tagRepository, branchRepository, barcodeGenerator,
                 qrCodeGenerator, auditLogService, authContext);
+
+        int defaultMembershipValidityDays = Integer.parseInt(configurationManager.app("app.membership.default-validity-days", "365"));
+        this.membershipTypeService = new MembershipTypeServiceImpl(membershipTypeRepository, auditLogService, authContext);
+        this.membershipService = new MembershipServiceImpl(membershipRepository, membershipTypeRepository, auditLogService, authContext);
+        this.studentService = new StudentServiceImpl(
+                studentRepository, userRepository, roleRepository, branchRepository, passwordEncoder,
+                membershipService, auditLogService, authContext, defaultMembershipValidityDays);
+        this.facultyService = new FacultyServiceImpl(
+                facultyRepository, userRepository, roleRepository, passwordEncoder,
+                membershipService, auditLogService, authContext, defaultMembershipValidityDays);
     }
 
     /**
@@ -220,6 +261,26 @@ public final class AppContext {
 
     public BranchRepository getBranchRepository() {
         return branchRepository;
+    }
+
+    public MembershipTypeService getMembershipTypeService() {
+        return membershipTypeService;
+    }
+
+    public MembershipService getMembershipService() {
+        return membershipService;
+    }
+
+    public StudentService getStudentService() {
+        return studentService;
+    }
+
+    public FacultyService getFacultyService() {
+        return facultyService;
+    }
+
+    public FileStorageUtil getPhotoStorageUtil() {
+        return photoStorageUtil;
     }
 
     public ViewNavigator getViewNavigator() {
