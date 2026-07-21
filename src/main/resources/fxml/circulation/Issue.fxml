@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           styleClass="app-root"
+           fx:controller="com.university.lms.ui.controller.circulation.IssueController">
+    <VBox alignment="CENTER" spacing="14" styleClass="auth-card" maxWidth="420">
+        <padding>
+            <Insets top="36" right="36" bottom="36" left="36"/>
+        </padding>
+        <Label text="Issue Book" styleClass="brand-title"/>
+
+        <TextField fx:id="memberIdentifierField" promptText="Scan or type Student/Faculty ID" onAction="#onIssue"/>
+        <TextField fx:id="copyBarcodeField" promptText="Scan or type Book Copy Barcode" onAction="#onIssue"/>
+
+        <Button fx:id="issueButton" text="ISSUE" onAction="#onIssue" styleClass="primary-button" maxWidth="Infinity"/>
+
+        <Label fx:id="resultLabel" wrapText="true" styleClass="status-label"/>
+        <Label fx:id="errorLabel" wrapText="true" styleClass="error-label"/>
+
+        <Hyperlink text="Back to Home" onAction="#onBack"/>
+    </VBox>
+</StackPane>

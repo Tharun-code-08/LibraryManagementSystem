@@ -107,6 +107,21 @@ public final class AuthenticatedShellController implements Initializable {
     }
 
     @FXML
+    private void onOpenIssue() {
+        appContext.getViewNavigator().navigate("/fxml/circulation/Issue.fxml");
+    }
+
+    @FXML
+    private void onOpenReturn() {
+        appContext.getViewNavigator().navigate("/fxml/circulation/Return.fxml");
+    }
+
+    @FXML
+    private void onOpenReservation() {
+        appContext.getViewNavigator().navigate("/fxml/circulation/Reservation.fxml");
+    }
+
+    @FXML
     private void onToggleDarkMode() {
         Scene scene = darkModeToggle.getScene();
         scene.getStylesheets().removeIf(sheet -> sheet.endsWith("theme-light.css") || sheet.endsWith("theme-dark.css"));

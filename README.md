@@ -64,6 +64,17 @@ mvn test
   pickers, photo upload), a Faculty directory with its own Add/Edit form, a Membership Types
   management screen, and a Student Bulk Import screen — all reachable from the authenticated
   shell's quick actions.
+- **Phase 4 — Circulation**: complete. `Issue`/`Return`/`Reservation`/`Fine` entities and
+  repositories. Business layer: `BorrowLimitValidator` (per-membership-type concurrent-borrow
+  cap), `OverdueFineStrategy` (per-day overdue fine minus grace period, plus full/half book cost
+  for lost/damaged copies), `MembershipHolderResolver` (resolves a scanned student/faculty ID to
+  their active membership), and `ReservationQueueManager` (FIFO queueing and hold-expiry sweep).
+  `IssueService` validates copy availability and the borrow limit before issuing; `ReturnService`
+  computes and records any fine, updates copy condition/status, and auto-promotes the next queued
+  reservation when a copy comes back available; `ReservationService` supports reserve/cancel and
+  runs an hourly scheduled sweep that expires unclaimed holds. UI: barcode-scan-driven Issue and
+  Return screens (typed or scanned IDs/barcodes, Enter-to-submit) and a Reserve Book screen with
+  catalog search, all reachable from the authenticated shell.
 
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 4 — Circulation: Issue / Return / Reservation).
+(Phase 5 — Fines & Payments).

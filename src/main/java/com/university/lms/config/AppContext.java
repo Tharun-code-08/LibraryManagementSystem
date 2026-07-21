@@ -1,6 +1,9 @@
 package com.university.lms.config;
 
 import java.nio.file.Path;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.SessionFactory;
@@ -14,12 +17,21 @@ import com.university.lms.repository.AuthorRepository;
 import com.university.lms.repository.BookCopyRepository;
 import com.university.lms.repository.BookRepository;
 import com.university.lms.repository.BranchRepository;
+import com.university.lms.business.BorrowLimitValidator;
+import com.university.lms.business.FineCalculationStrategy;
+import com.university.lms.business.MembershipHolderResolver;
+import com.university.lms.business.OverdueFineStrategy;
+import com.university.lms.business.ReservationQueueManager;
 import com.university.lms.repository.CategoryRepository;
 import com.university.lms.repository.FacultyRepository;
+import com.university.lms.repository.FineRepository;
+import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
 import com.university.lms.repository.PublisherRepository;
+import com.university.lms.repository.ReservationRepository;
+import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.SessionRepository;
 import com.university.lms.repository.StudentRepository;
@@ -32,10 +44,14 @@ import com.university.lms.repository.impl.HibernateBookRepository;
 import com.university.lms.repository.impl.HibernateBranchRepository;
 import com.university.lms.repository.impl.HibernateCategoryRepository;
 import com.university.lms.repository.impl.HibernateFacultyRepository;
+import com.university.lms.repository.impl.HibernateFineRepository;
+import com.university.lms.repository.impl.HibernateIssueRepository;
 import com.university.lms.repository.impl.HibernateMembershipRepository;
 import com.university.lms.repository.impl.HibernateMembershipTypeRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
 import com.university.lms.repository.impl.HibernatePublisherRepository;
+import com.university.lms.repository.impl.HibernateReservationRepository;
+import com.university.lms.repository.impl.HibernateReturnRepository;
 import com.university.lms.repository.impl.HibernateRoleRepository;
 import com.university.lms.repository.impl.HibernateSessionRepository;
 import com.university.lms.repository.impl.HibernateStudentRepository;
@@ -67,6 +83,12 @@ import com.university.lms.service.people.impl.FacultyServiceImpl;
 import com.university.lms.service.people.impl.MembershipServiceImpl;
 import com.university.lms.service.people.impl.MembershipTypeServiceImpl;
 import com.university.lms.service.people.impl.StudentServiceImpl;
+import com.university.lms.service.circulation.IssueService;
+import com.university.lms.service.circulation.ReservationService;
+import com.university.lms.service.circulation.ReturnService;
+import com.university.lms.service.circulation.impl.IssueServiceImpl;
+import com.university.lms.service.circulation.impl.ReservationServiceImpl;
+import com.university.lms.service.circulation.impl.ReturnServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
@@ -108,6 +130,10 @@ public final class AppContext {
     private final FacultyRepository facultyRepository;
     private final MembershipTypeRepository membershipTypeRepository;
     private final MembershipRepository membershipRepository;
+    private final IssueRepository issueRepository;
+    private final ReturnRepository returnRepository;
+    private final ReservationRepository reservationRepository;
+    private final FineRepository fineRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -117,6 +143,11 @@ public final class AppContext {
     private final BarcodeGenerator barcodeGenerator;
     private final QrCodeGenerator qrCodeGenerator;
     private final FileStorageUtil photoStorageUtil;
+    private final BorrowLimitValidator borrowLimitValidator;
+    private final FineCalculationStrategy fineCalculationStrategy;
+    private final MembershipHolderResolver membershipHolderResolver;
+    private final ReservationQueueManager reservationQueueManager;
+    private final ScheduledExecutorService scheduledExecutorService;
 
     private final AuditLogService auditLogService;
     private final AuthService authService;
@@ -128,6 +159,9 @@ public final class AppContext {
     private final MembershipService membershipService;
     private final StudentService studentService;
     private final FacultyService facultyService;
+    private final IssueService issueService;
+    private final ReturnService returnService;
+    private final ReservationService reservationService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -156,6 +190,10 @@ public final class AppContext {
         this.facultyRepository = new HibernateFacultyRepository(sessionFactory);
         this.membershipTypeRepository = new HibernateMembershipTypeRepository(sessionFactory);
         this.membershipRepository = new HibernateMembershipRepository(sessionFactory);
+        this.issueRepository = new HibernateIssueRepository(sessionFactory);
+        this.returnRepository = new HibernateReturnRepository(sessionFactory);
+        this.reservationRepository = new HibernateReservationRepository(sessionFactory);
+        this.fineRepository = new HibernateFineRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -166,6 +204,16 @@ public final class AppContext {
         this.barcodeGenerator = new BarcodeGenerator(Path.of(configurationManager.app("app.assets.barcodes-directory", "./generated/barcodes")));
         this.qrCodeGenerator = new QrCodeGenerator(Path.of(configurationManager.app("app.assets.qrcodes-directory", "./generated/qrcodes")));
         this.photoStorageUtil = new FileStorageUtil(Path.of(configurationManager.app("app.assets.photos-directory", "./generated/photos")));
+        this.borrowLimitValidator = new BorrowLimitValidator();
+        this.fineCalculationStrategy = new OverdueFineStrategy();
+        this.membershipHolderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
+        int reservationHoldDays = Integer.parseInt(configurationManager.app("app.circulation.reservation-hold-days", "3"));
+        this.reservationQueueManager = new ReservationQueueManager(reservationRepository, reservationHoldDays);
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "lms-scheduled-sweep");
+            thread.setDaemon(true);
+            return thread;
+        });
 
         this.auditLogService = new AuditLogServiceImpl(auditLogRepository);
         this.authService = new AuthServiceImpl(
@@ -188,6 +236,19 @@ public final class AppContext {
         this.facultyService = new FacultyServiceImpl(
                 facultyRepository, userRepository, roleRepository, passwordEncoder,
                 membershipService, auditLogService, authContext, defaultMembershipValidityDays);
+
+        this.issueService = new IssueServiceImpl(
+                issueRepository, bookCopyRepository, membershipRepository, userRepository,
+                membershipHolderResolver, borrowLimitValidator, auditLogService);
+        this.returnService = new ReturnServiceImpl(
+                issueRepository, bookCopyRepository, returnRepository, fineRepository, userRepository,
+                fineCalculationStrategy, reservationQueueManager, membershipHolderResolver, auditLogService);
+        this.reservationService = new ReservationServiceImpl(
+                reservationRepository, bookRepository, membershipRepository, membershipHolderResolver,
+                reservationQueueManager, auditLogService, authContext);
+
+        this.scheduledExecutorService.scheduleAtFixedRate(
+                reservationService::expireStaleReservations, 1, 60, TimeUnit.MINUTES);
     }
 
     /**
@@ -283,6 +344,18 @@ public final class AppContext {
         return photoStorageUtil;
     }
 
+    public IssueService getIssueService() {
+        return issueService;
+    }
+
+    public ReturnService getReturnService() {
+        return returnService;
+    }
+
+    public ReservationService getReservationService() {
+        return reservationService;
+    }
+
     public ViewNavigator getViewNavigator() {
         return viewNavigator;
     }
@@ -305,6 +378,7 @@ public final class AppContext {
     }
 
     public void shutdown() {
+        scheduledExecutorService.shutdownNow();
         asyncExecutor.shutdown();
         if (sessionFactory != null && !sessionFactory.isClosed()) {
             sessionFactory.close();
