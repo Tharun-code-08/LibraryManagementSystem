@@ -1,6 +1,7 @@
 target/
 logs/
 backups/
+generated/
 *.class
 .idea/
 *.iml

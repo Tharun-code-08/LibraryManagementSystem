@@ -1,5 +1,7 @@
 package com.university.lms.config;
 
+import java.nio.file.Path;
+
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -8,14 +10,28 @@ import org.slf4j.LoggerFactory;
 import com.university.lms.database.FlywayMigrationRunner;
 import com.university.lms.database.HibernateSessionFactoryProvider;
 import com.university.lms.repository.AuditLogRepository;
+import com.university.lms.repository.AuthorRepository;
+import com.university.lms.repository.BookCopyRepository;
+import com.university.lms.repository.BookRepository;
+import com.university.lms.repository.BranchRepository;
+import com.university.lms.repository.CategoryRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
+import com.university.lms.repository.PublisherRepository;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.SessionRepository;
+import com.university.lms.repository.TagRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.repository.impl.HibernateAuditLogRepository;
+import com.university.lms.repository.impl.HibernateAuthorRepository;
+import com.university.lms.repository.impl.HibernateBookCopyRepository;
+import com.university.lms.repository.impl.HibernateBookRepository;
+import com.university.lms.repository.impl.HibernateBranchRepository;
+import com.university.lms.repository.impl.HibernateCategoryRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
+import com.university.lms.repository.impl.HibernatePublisherRepository;
 import com.university.lms.repository.impl.HibernateRoleRepository;
 import com.university.lms.repository.impl.HibernateSessionRepository;
+import com.university.lms.repository.impl.HibernateTagRepository;
 import com.university.lms.repository.impl.HibernateUserRepository;
 import com.university.lms.security.AuthContext;
 import com.university.lms.security.BCryptPasswordEncoder;
@@ -27,8 +43,18 @@ import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.auth.AuthService;
 import com.university.lms.service.auth.impl.AuditLogServiceImpl;
 import com.university.lms.service.auth.impl.AuthServiceImpl;
+import com.university.lms.service.catalog.AuthorService;
+import com.university.lms.service.catalog.BookService;
+import com.university.lms.service.catalog.CategoryService;
+import com.university.lms.service.catalog.PublisherService;
+import com.university.lms.service.catalog.impl.AuthorServiceImpl;
+import com.university.lms.service.catalog.impl.BookServiceImpl;
+import com.university.lms.service.catalog.impl.CategoryServiceImpl;
+import com.university.lms.service.catalog.impl.PublisherServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
+import com.university.lms.util.BarcodeGenerator;
+import com.university.lms.util.QrCodeGenerator;
 
 /**
  * Composition root of the application. Wires the configuration, connection pool, migration
@@ -54,17 +80,31 @@ public final class AppContext {
     private final SessionRepository sessionRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final AuditLogRepository auditLogRepository;
+    private final AuthorRepository authorRepository;
+    private final PublisherRepository publisherRepository;
+    private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
+    private final BookRepository bookRepository;
+    private final BookCopyRepository bookCopyRepository;
+    private final BranchRepository branchRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
     private final SessionManager sessionManager;
     private final PermissionEvaluator permissionEvaluator;
     private final RememberMeStore rememberMeStore;
+    private final BarcodeGenerator barcodeGenerator;
+    private final QrCodeGenerator qrCodeGenerator;
 
     private final AuditLogService auditLogService;
     private final AuthService authService;
+    private final AuthorService authorService;
+    private final PublisherService publisherService;
+    private final CategoryService categoryService;
+    private final BookService bookService;
 
     private ViewNavigator viewNavigator;
+    private Object navigationParameter;
 
     private AppContext(ConfigurationManager configurationManager,
                         HikariDataSource dataSource,
@@ -79,6 +119,13 @@ public final class AppContext {
         this.sessionRepository = new HibernateSessionRepository(sessionFactory);
         this.passwordResetTokenRepository = new HibernatePasswordResetTokenRepository(sessionFactory);
         this.auditLogRepository = new HibernateAuditLogRepository(sessionFactory);
+        this.authorRepository = new HibernateAuthorRepository(sessionFactory);
+        this.publisherRepository = new HibernatePublisherRepository(sessionFactory);
+        this.categoryRepository = new HibernateCategoryRepository(sessionFactory);
+        this.tagRepository = new HibernateTagRepository(sessionFactory);
+        this.bookRepository = new HibernateBookRepository(sessionFactory);
+        this.bookCopyRepository = new HibernateBookCopyRepository(sessionFactory);
+        this.branchRepository = new HibernateBranchRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -86,11 +133,20 @@ public final class AppContext {
         this.sessionManager = new SessionManager(sessionRepository, idleTimeoutMinutes);
         this.permissionEvaluator = new PermissionEvaluator(authContext);
         this.rememberMeStore = new RememberMeStore();
+        this.barcodeGenerator = new BarcodeGenerator(Path.of(configurationManager.app("app.assets.barcodes-directory", "./generated/barcodes")));
+        this.qrCodeGenerator = new QrCodeGenerator(Path.of(configurationManager.app("app.assets.qrcodes-directory", "./generated/qrcodes")));
 
         this.auditLogService = new AuditLogServiceImpl(auditLogRepository);
         this.authService = new AuthServiceImpl(
                 userRepository, passwordResetTokenRepository, sessionManager,
                 passwordEncoder, authContext, auditLogService);
+        this.authorService = new AuthorServiceImpl(authorRepository, auditLogService, authContext);
+        this.publisherService = new PublisherServiceImpl(publisherRepository, auditLogService, authContext);
+        this.categoryService = new CategoryServiceImpl(categoryRepository, auditLogService, authContext);
+        this.bookService = new BookServiceImpl(
+                bookRepository, bookCopyRepository, authorRepository, publisherRepository,
+                categoryRepository, tagRepository, branchRepository, barcodeGenerator,
+                qrCodeGenerator, auditLogService, authContext);
     }
 
     /**
@@ -146,12 +202,45 @@ public final class AppContext {
         return auditLogService;
     }
 
+    public AuthorService getAuthorService() {
+        return authorService;
+    }
+
+    public PublisherService getPublisherService() {
+        return publisherService;
+    }
+
+    public CategoryService getCategoryService() {
+        return categoryService;
+    }
+
+    public BookService getBookService() {
+        return bookService;
+    }
+
+    public BranchRepository getBranchRepository() {
+        return branchRepository;
+    }
+
     public ViewNavigator getViewNavigator() {
         return viewNavigator;
     }
 
     public void setViewNavigator(ViewNavigator viewNavigator) {
         this.viewNavigator = viewNavigator;
+    }
+
+    /**
+     * A single slot for passing lightweight context to the next-navigated screen (e.g. "which
+     * book id to edit"), since {@link ViewNavigator} otherwise only takes an FXML path. The
+     * receiving controller must read and clear it immediately in its {@code initialize}.
+     */
+    public Object getNavigationParameter() {
+        return navigationParameter;
+    }
+
+    public void setNavigationParameter(Object navigationParameter) {
+        this.navigationParameter = navigationParameter;
     }
 
     public void shutdown() {

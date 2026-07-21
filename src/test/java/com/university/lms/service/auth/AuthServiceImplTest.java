@@ -87,7 +87,7 @@ class AuthServiceImplTest {
         assertEquals("jdoe", result.getUser().getUsername());
         assertTrue(result.getUser().getPermissions().contains("BOOK_MANAGE"));
         assertTrue(authContext.isAuthenticated());
-        verify(auditLogService).log(activeUser, "LOGIN_SUCCESS", "User", activeUser.getId());
+        verify(auditLogService).log(activeUser.getId(), "LOGIN_SUCCESS", "User", activeUser.getId());
     }
 
     @Test
@@ -101,7 +101,7 @@ class AuthServiceImplTest {
                 .build();
 
         assertThrows(InvalidCredentialsException.class, () -> authService.login(request, "127.0.0.1"));
-        verify(auditLogService).log(activeUser, "LOGIN_FAILURE", "User", activeUser.getId());
+        verify(auditLogService).log(activeUser.getId(), "LOGIN_FAILURE", "User", activeUser.getId());
     }
 
     @Test

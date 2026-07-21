@@ -83,7 +83,7 @@ public final class AuthServiceImpl implements AuthService {
                 user.setStatus(UserStatus.LOCKED);
             }
             userRepository.save(user);
-            auditLogService.log(user, "LOGIN_FAILURE", "User", user.getId());
+            auditLogService.log(user.getId(), "LOGIN_FAILURE", "User", user.getId());
             throw new InvalidCredentialsException();
         }
 
@@ -94,7 +94,7 @@ public final class AuthServiceImpl implements AuthService {
         UserSession session = sessionManager.createSession(user, ipAddress, request.isRememberMe());
         UserDTO userDto = toDto(user);
         authContext.set(userDto, session.getToken());
-        auditLogService.log(user, "LOGIN_SUCCESS", "User", user.getId());
+        auditLogService.log(user.getId(), "LOGIN_SUCCESS", "User", user.getId());
 
         return new AuthResultDTO(userDto, session.getToken());
     }
@@ -117,7 +117,8 @@ public final class AuthServiceImpl implements AuthService {
                 ? userRepository.findById(authContext.getCurrentUser().getId()).orElse(null)
                 : null;
         sessionManager.revoke(sessionToken);
-        auditLogService.log(currentUser, "LOGOUT", "User", currentUser != null ? currentUser.getId() : null);
+        Long currentUserId = currentUser != null ? currentUser.getId() : null;
+        auditLogService.log(currentUserId, "LOGOUT", "User", currentUserId);
         authContext.clear();
     }
 
@@ -138,7 +139,7 @@ public final class AuthServiceImpl implements AuthService {
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
-        auditLogService.log(user, "PASSWORD_CHANGED", "User", user.getId());
+        auditLogService.log(user.getId(), "PASSWORD_CHANGED", "User", user.getId());
     }
 
     @Override
@@ -152,7 +153,7 @@ public final class AuthServiceImpl implements AuthService {
         LocalDateTime now = LocalDateTime.now();
         passwordResetTokenRepository.save(
                 new PasswordResetToken(user, token, now, now.plusMinutes(RESET_TOKEN_EXPIRY_MINUTES)));
-        auditLogService.log(user, "PASSWORD_RESET_REQUESTED", "User", user.getId());
+        auditLogService.log(user.getId(), "PASSWORD_RESET_REQUESTED", "User", user.getId());
         return Optional.of(token);
     }
 
@@ -178,7 +179,7 @@ public final class AuthServiceImpl implements AuthService {
 
         resetToken.markUsed();
         passwordResetTokenRepository.save(resetToken);
-        auditLogService.log(user, "PASSWORD_RESET_COMPLETED", "User", user.getId());
+        auditLogService.log(user.getId(), "PASSWORD_RESET_COMPLETED", "User", user.getId());
     }
 
     private String generateToken() {

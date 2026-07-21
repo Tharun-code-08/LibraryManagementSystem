@@ -44,6 +44,15 @@ mvn test
   `PermissionEvaluator` for role-based authorization; an append-only audit log for every auth
   event; and Login / Forgot Password / Reset Password / Change Password screens plus a
   role-aware authenticated shell with a client-side idle-session timeout.
+- **Phase 2 — Catalog Core**: complete. `Author`/`Publisher`/`Category` (nested, self-referencing)/
+  `Tag`/`Book`/`BookCopy` entities and repositories; `BookService` with create/update/soft-delete/
+  restore, keyword+category+status search with pagination, QR-code generation for new books
+  (ZXing) and Code128 barcode label generation for new physical copies, and CSV bulk import with
+  a per-row rejected-rows report; `AuthorService`/`PublisherService`/`CategoryService` for
+  reference-data CRUD. UI: a searchable/paginated Book Catalog screen, an Add/Edit Book form
+  (inline author/publisher creation, nested-category picker), a nested Category management
+  screen, and a Bulk Import screen — all reachable from the authenticated shell's "Book Catalog"
+  quick action.
 
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 2 — Catalog Core).
+(Phase 3 — People Management: Students, Faculty, Membership).

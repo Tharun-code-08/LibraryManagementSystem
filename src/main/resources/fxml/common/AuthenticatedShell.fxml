@@ -6,7 +6,7 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -26,9 +26,11 @@
         </HBox>
     </top>
     <center>
-        <StackPane styleClass="bootstrap-card">
+        <VBox alignment="CENTER" spacing="16" styleClass="bootstrap-card">
+            <Label text="Quick Actions" styleClass="status-label"/>
+            <Button text="Book Catalog" onAction="#onOpenBookCatalog" styleClass="primary-button"/>
             <Label text="Dashboard, sidebar, and full navigation arrive in later phases (see docs/13-ImplementationRoadmap.md)."
                    wrapText="true" styleClass="status-label"/>
-        </StackPane>
+        </VBox>
     </center>
 </BorderPane>
