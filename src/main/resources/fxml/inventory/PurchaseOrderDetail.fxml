@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.inventory.PurchaseOrderDetailController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Purchase Order Detail" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Hyperlink text="Back to Purchase Orders" onAction="#onBack"/>
+    </HBox>
+
+    <Label fx:id="summaryLabel" wrapText="true" styleClass="status-label"/>
+
+    <TableView fx:id="itemsTable" prefHeight="180">
+        <columns>
+            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="260"/>
+            <TableColumn fx:id="quantityColumn" text="Qty" prefWidth="60"/>
+            <TableColumn fx:id="unitCostColumn" text="Unit Cost" prefWidth="90"/>
+            <TableColumn fx:id="lineTotalColumn" text="Line Total" prefWidth="90"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button fx:id="submitButton" text="Submit for Approval" onAction="#onSubmitForApproval"/>
+        <Button fx:id="approveButton" text="Approve" onAction="#onApprove" styleClass="primary-button"/>
+        <Button fx:id="receiveButton" text="Mark Received" onAction="#onMarkReceived"/>
+        <Button fx:id="cancelButton" text="Cancel Order" onAction="#onCancel"/>
+    </HBox>
+
+    <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
+
+    <Label text="Invoices" styleClass="status-label"/>
+    <HBox spacing="10">
+        <TextField fx:id="invoiceNumberField" promptText="Invoice Number"/>
+        <TextField fx:id="invoiceAmountField" promptText="Total Amount"/>
+        <Button text="Record Invoice" onAction="#onRecordInvoice"/>
+    </HBox>
+    <ListView fx:id="invoicesList" prefHeight="120"/>
+</VBox>

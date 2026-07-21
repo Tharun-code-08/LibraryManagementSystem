@@ -40,6 +40,11 @@
                 <Button text="Reserve Book" onAction="#onOpenReservation" styleClass="primary-button"/>
                 <Button text="Fines" onAction="#onOpenFines" styleClass="primary-button"/>
             </HBox>
+            <HBox alignment="CENTER" spacing="12">
+                <Button text="Suppliers" onAction="#onOpenSuppliers" styleClass="primary-button"/>
+                <Button text="Purchase Orders" onAction="#onOpenPurchaseOrders" styleClass="primary-button"/>
+                <Button text="Inventory Audit" onAction="#onOpenInventoryAudit" styleClass="primary-button"/>
+            </HBox>
             <Label text="Dashboard, sidebar, and full navigation arrive in later phases (see docs/13-ImplementationRoadmap.md)."
                    wrapText="true" styleClass="status-label"/>
         </VBox>

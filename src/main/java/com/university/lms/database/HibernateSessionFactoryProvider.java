@@ -17,6 +17,9 @@ import com.university.lms.entity.Branch;
 import com.university.lms.entity.Category;
 import com.university.lms.entity.Faculty;
 import com.university.lms.entity.Fine;
+import com.university.lms.entity.InventoryAudit;
+import com.university.lms.entity.InventoryAuditItem;
+import com.university.lms.entity.Invoice;
 import com.university.lms.entity.Issue;
 import com.university.lms.entity.Membership;
 import com.university.lms.entity.MembershipType;
@@ -24,10 +27,13 @@ import com.university.lms.entity.PasswordResetToken;
 import com.university.lms.entity.Payment;
 import com.university.lms.entity.Permission;
 import com.university.lms.entity.Publisher;
+import com.university.lms.entity.PurchaseOrder;
+import com.university.lms.entity.PurchaseOrderItem;
 import com.university.lms.entity.Reservation;
 import com.university.lms.entity.Return;
 import com.university.lms.entity.Role;
 import com.university.lms.entity.Student;
+import com.university.lms.entity.Supplier;
 import com.university.lms.entity.Tag;
 import com.university.lms.entity.User;
 import com.university.lms.entity.UserSession;
@@ -76,6 +82,12 @@ public final class HibernateSessionFactoryProvider {
         metadataSources.addAnnotatedClass(Reservation.class);
         metadataSources.addAnnotatedClass(Fine.class);
         metadataSources.addAnnotatedClass(Payment.class);
+        metadataSources.addAnnotatedClass(Supplier.class);
+        metadataSources.addAnnotatedClass(PurchaseOrder.class);
+        metadataSources.addAnnotatedClass(PurchaseOrderItem.class);
+        metadataSources.addAnnotatedClass(Invoice.class);
+        metadataSources.addAnnotatedClass(InventoryAudit.class);
+        metadataSources.addAnnotatedClass(InventoryAuditItem.class);
 
         return metadataSources.buildMetadata().buildSessionFactory();
     }

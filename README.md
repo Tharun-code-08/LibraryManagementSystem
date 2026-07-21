@@ -84,6 +84,19 @@ mvn test
   filter, waive action, manual-fine form) and a Payment Collection screen that shows the fine
   summary, collects payment, and opens the generated receipt PDF — reachable from the
   authenticated shell's "Fines" quick action.
+- **Phase 6 — Inventory, Suppliers & Purchase Management**: complete. `Supplier`,
+  `PurchaseOrder`/`PurchaseOrderItem` (an aggregate — items cascade with their parent order),
+  `Invoice`, and `InventoryAudit`/`InventoryAuditItem` entities and repositories.
+  `PurchaseOrderService` drives the full approval workflow (DRAFT → PENDING_APPROVAL → APPROVED
+  → RECEIVED, plus CANCELLED from any non-RECEIVED state), rejecting any transition attempted
+  from the wrong status; `InvoiceService` records invoices only against approved/received orders;
+  `SupplierService` is straightforward reference-data CRUD. `InventoryAuditService` runs the
+  shelf-verification workflow: start an audit, scan each copy's barcode against its expected
+  system status, and auto-correct the copy's status in place whenever a scan disagrees (e.g. a
+  copy marked AVAILABLE that's actually LOST), then complete the audit. UI: Supplier management,
+  a paginated/filterable Purchase Order list with a line-item entry form and a detail screen
+  exposing the workflow actions plus invoice recording, and an Inventory Audit screen (start →
+  scan → complete) — all reachable from the authenticated shell.
 
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 6 — Inventory, Suppliers & Purchase Management).
+(Phase 7 — Dashboard & Analytics).

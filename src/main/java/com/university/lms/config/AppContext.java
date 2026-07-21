@@ -25,17 +25,22 @@ import com.university.lms.business.ReservationQueueManager;
 import com.university.lms.repository.CategoryRepository;
 import com.university.lms.repository.FacultyRepository;
 import com.university.lms.repository.FineRepository;
+import com.university.lms.repository.InventoryAuditItemRepository;
+import com.university.lms.repository.InventoryAuditRepository;
+import com.university.lms.repository.InvoiceRepository;
 import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
 import com.university.lms.repository.PaymentRepository;
 import com.university.lms.repository.PublisherRepository;
+import com.university.lms.repository.PurchaseOrderRepository;
 import com.university.lms.repository.ReservationRepository;
 import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.SessionRepository;
 import com.university.lms.repository.StudentRepository;
+import com.university.lms.repository.SupplierRepository;
 import com.university.lms.repository.TagRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.repository.impl.HibernateAuditLogRepository;
@@ -46,17 +51,22 @@ import com.university.lms.repository.impl.HibernateBranchRepository;
 import com.university.lms.repository.impl.HibernateCategoryRepository;
 import com.university.lms.repository.impl.HibernateFacultyRepository;
 import com.university.lms.repository.impl.HibernateFineRepository;
+import com.university.lms.repository.impl.HibernateInventoryAuditItemRepository;
+import com.university.lms.repository.impl.HibernateInventoryAuditRepository;
+import com.university.lms.repository.impl.HibernateInvoiceRepository;
 import com.university.lms.repository.impl.HibernateIssueRepository;
 import com.university.lms.repository.impl.HibernateMembershipRepository;
 import com.university.lms.repository.impl.HibernateMembershipTypeRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
 import com.university.lms.repository.impl.HibernatePaymentRepository;
 import com.university.lms.repository.impl.HibernatePublisherRepository;
+import com.university.lms.repository.impl.HibernatePurchaseOrderRepository;
 import com.university.lms.repository.impl.HibernateReservationRepository;
 import com.university.lms.repository.impl.HibernateReturnRepository;
 import com.university.lms.repository.impl.HibernateRoleRepository;
 import com.university.lms.repository.impl.HibernateSessionRepository;
 import com.university.lms.repository.impl.HibernateStudentRepository;
+import com.university.lms.repository.impl.HibernateSupplierRepository;
 import com.university.lms.repository.impl.HibernateTagRepository;
 import com.university.lms.repository.impl.HibernateUserRepository;
 import com.university.lms.security.AuthContext;
@@ -95,6 +105,14 @@ import com.university.lms.service.finance.FineService;
 import com.university.lms.service.finance.PaymentService;
 import com.university.lms.service.finance.impl.FineServiceImpl;
 import com.university.lms.service.finance.impl.PaymentServiceImpl;
+import com.university.lms.service.inventory.InventoryAuditService;
+import com.university.lms.service.inventory.InvoiceService;
+import com.university.lms.service.inventory.PurchaseOrderService;
+import com.university.lms.service.inventory.SupplierService;
+import com.university.lms.service.inventory.impl.InventoryAuditServiceImpl;
+import com.university.lms.service.inventory.impl.InvoiceServiceImpl;
+import com.university.lms.service.inventory.impl.PurchaseOrderServiceImpl;
+import com.university.lms.service.inventory.impl.SupplierServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
@@ -142,6 +160,11 @@ public final class AppContext {
     private final ReservationRepository reservationRepository;
     private final FineRepository fineRepository;
     private final PaymentRepository paymentRepository;
+    private final SupplierRepository supplierRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final InventoryAuditRepository inventoryAuditRepository;
+    private final InventoryAuditItemRepository inventoryAuditItemRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -173,6 +196,10 @@ public final class AppContext {
     private final ReservationService reservationService;
     private final FineService fineService;
     private final PaymentService paymentService;
+    private final SupplierService supplierService;
+    private final PurchaseOrderService purchaseOrderService;
+    private final InvoiceService invoiceService;
+    private final InventoryAuditService inventoryAuditService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -206,6 +233,11 @@ public final class AppContext {
         this.reservationRepository = new HibernateReservationRepository(sessionFactory);
         this.fineRepository = new HibernateFineRepository(sessionFactory);
         this.paymentRepository = new HibernatePaymentRepository(sessionFactory);
+        this.supplierRepository = new HibernateSupplierRepository(sessionFactory);
+        this.purchaseOrderRepository = new HibernatePurchaseOrderRepository(sessionFactory);
+        this.invoiceRepository = new HibernateInvoiceRepository(sessionFactory);
+        this.inventoryAuditRepository = new HibernateInventoryAuditRepository(sessionFactory);
+        this.inventoryAuditItemRepository = new HibernateInventoryAuditItemRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -268,6 +300,14 @@ public final class AppContext {
         this.paymentService = new PaymentServiceImpl(
                 fineRepository, paymentRepository, userRepository, membershipHolderResolver,
                 receiptGenerator, auditLogService);
+
+        this.supplierService = new SupplierServiceImpl(supplierRepository, auditLogService, authContext);
+        this.purchaseOrderService = new PurchaseOrderServiceImpl(
+                purchaseOrderRepository, supplierRepository, bookRepository, userRepository, auditLogService, authContext);
+        this.invoiceService = new InvoiceServiceImpl(invoiceRepository, purchaseOrderRepository, auditLogService, authContext);
+        this.inventoryAuditService = new InventoryAuditServiceImpl(
+                inventoryAuditRepository, inventoryAuditItemRepository, bookCopyRepository, branchRepository,
+                userRepository, auditLogService, authContext);
     }
 
     /**
@@ -381,6 +421,22 @@ public final class AppContext {
 
     public PaymentService getPaymentService() {
         return paymentService;
+    }
+
+    public SupplierService getSupplierService() {
+        return supplierService;
+    }
+
+    public PurchaseOrderService getPurchaseOrderService() {
+        return purchaseOrderService;
+    }
+
+    public InvoiceService getInvoiceService() {
+        return invoiceService;
+    }
+
+    public InventoryAuditService getInventoryAuditService() {
+        return inventoryAuditService;
     }
 
     public ViewNavigator getViewNavigator() {
