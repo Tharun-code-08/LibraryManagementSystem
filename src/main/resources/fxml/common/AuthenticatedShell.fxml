@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="app-root"
+            fx:controller="com.university.lms.ui.controller.common.AuthenticatedShellController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="top-nav">
+            <padding>
+                <Insets top="12" right="20" bottom="12" left="20"/>
+            </padding>
+            <Label text="LibraryOS" styleClass="brand-title-small"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Label fx:id="welcomeLabel"/>
+            <ToggleButton fx:id="darkModeToggle" text="Dark Mode" onAction="#onToggleDarkMode"/>
+            <Button text="Change Password" onAction="#onChangePassword"/>
+            <Button text="Logout" onAction="#onLogout" styleClass="primary-button"/>
+        </HBox>
+    </top>
+    <center>
+        <StackPane styleClass="bootstrap-card">
+            <Label text="Dashboard, sidebar, and full navigation arrive in later phases (see docs/13-ImplementationRoadmap.md)."
+                   wrapText="true" styleClass="status-label"/>
+        </StackPane>
+    </center>
+</BorderPane>

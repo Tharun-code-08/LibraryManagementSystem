@@ -9,6 +9,13 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
 import com.university.lms.config.ConfigurationManager;
+import com.university.lms.entity.AuditLog;
+import com.university.lms.entity.Branch;
+import com.university.lms.entity.PasswordResetToken;
+import com.university.lms.entity.Permission;
+import com.university.lms.entity.Role;
+import com.university.lms.entity.User;
+import com.university.lms.entity.UserSession;
 
 /**
  * Builds the single application-wide Hibernate {@link SessionFactory}, reusing the already
@@ -31,8 +38,14 @@ public final class HibernateSessionFactoryProvider {
         ServiceRegistry serviceRegistry = registryBuilder.build();
         MetadataSources metadataSources = new MetadataSources(serviceRegistry);
 
-        // Entity classes are added here as each module's persistence layer is implemented,
-        // e.g. metadataSources.addAnnotatedClass(User.class);
+        // Entity classes are added here as each module's persistence layer is implemented.
+        metadataSources.addAnnotatedClass(Branch.class);
+        metadataSources.addAnnotatedClass(Permission.class);
+        metadataSources.addAnnotatedClass(Role.class);
+        metadataSources.addAnnotatedClass(User.class);
+        metadataSources.addAnnotatedClass(UserSession.class);
+        metadataSources.addAnnotatedClass(PasswordResetToken.class);
+        metadataSources.addAnnotatedClass(AuditLog.class);
 
         return metadataSources.buildMetadata().buildSessionFactory();
     }

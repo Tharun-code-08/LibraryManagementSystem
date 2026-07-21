@@ -34,10 +34,16 @@ mvn test
 ```
 
 ## Project Status
-**Phase 0 — Project Bootstrap** is complete: Maven project skeleton, layered package structure,
-Flyway-managed database schema (security/catalog/people/circulation/finance/inventory/
-notifications), Hibernate + HikariCP wiring, the DI composition root (`AppContext`), global
-exception handling, base theming (light/dark), and a bootstrap shell screen proving the stack
-boots end-to-end.
+- **Phase 0 — Project Bootstrap**: complete. Maven project skeleton, layered package structure,
+  Flyway-managed database schema, Hibernate + HikariCP wiring, the DI composition root
+  (`AppContext`), global exception handling, and base theming (light/dark).
+- **Phase 1 — Security & Authentication**: complete. `User`/`Role`/`Permission`/`UserSession`/
+  `PasswordResetToken`/`AuditLog` entities and repositories; BCrypt password hashing;
+  `AuthService` covering login (with account lockout after repeated failures), logout, session
+  resume ("Remember Me"), change password, and forgot/reset password; `AuthContext` +
+  `PermissionEvaluator` for role-based authorization; an append-only audit log for every auth
+  event; and Login / Forgot Password / Reset Password / Change Password screens plus a
+  role-aware authenticated shell with a client-side idle-session timeout.
 
-See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next.
+See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
+(Phase 2 — Catalog Core).

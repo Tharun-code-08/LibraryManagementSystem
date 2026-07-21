@@ -35,7 +35,7 @@ public final class LibraryManagementApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/common/MainShell.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/common/AppShell.fxml"));
         loader.setControllerFactory(new FxControllerFactory(appContext));
         Parent root = loader.load();
 
