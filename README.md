@@ -75,6 +75,15 @@ mvn test
   runs an hourly scheduled sweep that expires unclaimed holds. UI: barcode-scan-driven Issue and
   Return screens (typed or scanned IDs/barcodes, Enter-to-submit) and a Reserve Book screen with
   catalog search, all reachable from the authenticated shell.
+- **Phase 5 — Fines & Payments**: complete. `Payment` entity and repository (a fine may have
+  several partial payments). `FineService` supports paginated status-filtered search, manual
+  fine creation against an issue, and waiving a pending/partial fine (rejecting an already-settled
+  one). `PaymentService` collects a full or partial payment — validating it against the fine's
+  remaining balance — updates the fine's status (PARTIAL/PAID), and renders a one-page PDF
+  receipt via a new PDFBox-based `ReceiptGenerator`. UI: a Fine Management dashboard (status
+  filter, waive action, manual-fine form) and a Payment Collection screen that shows the fine
+  summary, collects payment, and opens the generated receipt PDF — reachable from the
+  authenticated shell's "Fines" quick action.
 
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 5 — Fines & Payments).
+(Phase 6 — Inventory, Suppliers & Purchase Management).

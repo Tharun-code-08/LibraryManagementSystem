@@ -29,6 +29,7 @@ import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
+import com.university.lms.repository.PaymentRepository;
 import com.university.lms.repository.PublisherRepository;
 import com.university.lms.repository.ReservationRepository;
 import com.university.lms.repository.ReturnRepository;
@@ -49,6 +50,7 @@ import com.university.lms.repository.impl.HibernateIssueRepository;
 import com.university.lms.repository.impl.HibernateMembershipRepository;
 import com.university.lms.repository.impl.HibernateMembershipTypeRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
+import com.university.lms.repository.impl.HibernatePaymentRepository;
 import com.university.lms.repository.impl.HibernatePublisherRepository;
 import com.university.lms.repository.impl.HibernateReservationRepository;
 import com.university.lms.repository.impl.HibernateReturnRepository;
@@ -89,11 +91,16 @@ import com.university.lms.service.circulation.ReturnService;
 import com.university.lms.service.circulation.impl.IssueServiceImpl;
 import com.university.lms.service.circulation.impl.ReservationServiceImpl;
 import com.university.lms.service.circulation.impl.ReturnServiceImpl;
+import com.university.lms.service.finance.FineService;
+import com.university.lms.service.finance.PaymentService;
+import com.university.lms.service.finance.impl.FineServiceImpl;
+import com.university.lms.service.finance.impl.PaymentServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
 import com.university.lms.util.FileStorageUtil;
 import com.university.lms.util.QrCodeGenerator;
+import com.university.lms.util.ReceiptGenerator;
 
 /**
  * Composition root of the application. Wires the configuration, connection pool, migration
@@ -134,6 +141,7 @@ public final class AppContext {
     private final ReturnRepository returnRepository;
     private final ReservationRepository reservationRepository;
     private final FineRepository fineRepository;
+    private final PaymentRepository paymentRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -143,6 +151,7 @@ public final class AppContext {
     private final BarcodeGenerator barcodeGenerator;
     private final QrCodeGenerator qrCodeGenerator;
     private final FileStorageUtil photoStorageUtil;
+    private final ReceiptGenerator receiptGenerator;
     private final BorrowLimitValidator borrowLimitValidator;
     private final FineCalculationStrategy fineCalculationStrategy;
     private final MembershipHolderResolver membershipHolderResolver;
@@ -162,6 +171,8 @@ public final class AppContext {
     private final IssueService issueService;
     private final ReturnService returnService;
     private final ReservationService reservationService;
+    private final FineService fineService;
+    private final PaymentService paymentService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -194,6 +205,7 @@ public final class AppContext {
         this.returnRepository = new HibernateReturnRepository(sessionFactory);
         this.reservationRepository = new HibernateReservationRepository(sessionFactory);
         this.fineRepository = new HibernateFineRepository(sessionFactory);
+        this.paymentRepository = new HibernatePaymentRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -204,6 +216,7 @@ public final class AppContext {
         this.barcodeGenerator = new BarcodeGenerator(Path.of(configurationManager.app("app.assets.barcodes-directory", "./generated/barcodes")));
         this.qrCodeGenerator = new QrCodeGenerator(Path.of(configurationManager.app("app.assets.qrcodes-directory", "./generated/qrcodes")));
         this.photoStorageUtil = new FileStorageUtil(Path.of(configurationManager.app("app.assets.photos-directory", "./generated/photos")));
+        this.receiptGenerator = new ReceiptGenerator(Path.of(configurationManager.app("app.assets.receipts-directory", "./generated/receipts")));
         this.borrowLimitValidator = new BorrowLimitValidator();
         this.fineCalculationStrategy = new OverdueFineStrategy();
         this.membershipHolderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
@@ -249,6 +262,12 @@ public final class AppContext {
 
         this.scheduledExecutorService.scheduleAtFixedRate(
                 reservationService::expireStaleReservations, 1, 60, TimeUnit.MINUTES);
+
+        this.fineService = new FineServiceImpl(
+                fineRepository, issueRepository, paymentRepository, membershipHolderResolver, auditLogService, authContext);
+        this.paymentService = new PaymentServiceImpl(
+                fineRepository, paymentRepository, userRepository, membershipHolderResolver,
+                receiptGenerator, auditLogService);
     }
 
     /**
@@ -354,6 +373,14 @@ public final class AppContext {
 
     public ReservationService getReservationService() {
         return reservationService;
+    }
+
+    public FineService getFineService() {
+        return fineService;
+    }
+
+    public PaymentService getPaymentService() {
+        return paymentService;
     }
 
     public ViewNavigator getViewNavigator() {

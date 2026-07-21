@@ -21,6 +21,7 @@ import com.university.lms.entity.Issue;
 import com.university.lms.entity.Membership;
 import com.university.lms.entity.MembershipType;
 import com.university.lms.entity.PasswordResetToken;
+import com.university.lms.entity.Payment;
 import com.university.lms.entity.Permission;
 import com.university.lms.entity.Publisher;
 import com.university.lms.entity.Reservation;
@@ -74,6 +75,7 @@ public final class HibernateSessionFactoryProvider {
         metadataSources.addAnnotatedClass(Return.class);
         metadataSources.addAnnotatedClass(Reservation.class);
         metadataSources.addAnnotatedClass(Fine.class);
+        metadataSources.addAnnotatedClass(Payment.class);
 
         return metadataSources.buildMetadata().buildSessionFactory();
     }

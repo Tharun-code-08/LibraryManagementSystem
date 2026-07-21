@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           styleClass="app-root"
+           fx:controller="com.university.lms.ui.controller.finance.PaymentCollectionController">
+    <VBox alignment="CENTER" spacing="14" styleClass="auth-card" maxWidth="460">
+        <padding>
+            <Insets top="36" right="36" bottom="36" left="36"/>
+        </padding>
+        <Label text="Collect Payment" styleClass="brand-title"/>
+
+        <Label fx:id="fineSummaryLabel" wrapText="true" styleClass="status-label"/>
+
+        <TextField fx:id="amountField" promptText="Payment Amount"/>
+        <ComboBox fx:id="methodCombo" maxWidth="Infinity"/>
+
+        <Button fx:id="collectButton" text="COLLECT PAYMENT" onAction="#onCollectPayment" styleClass="primary-button" maxWidth="Infinity"/>
+
+        <Label fx:id="messageLabel" wrapText="true" styleClass="status-label"/>
+
+        <HBox spacing="12" alignment="CENTER">
+            <Button fx:id="openReceiptButton" text="Open Receipt" onAction="#onOpenReceipt"/>
+            <Hyperlink text="Back to Fines" onAction="#onBack"/>
+        </HBox>
+    </VBox>
+</StackPane>

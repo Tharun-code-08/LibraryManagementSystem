@@ -38,6 +38,7 @@
                 <Button text="Issue Book" onAction="#onOpenIssue" styleClass="primary-button"/>
                 <Button text="Return Book" onAction="#onOpenReturn" styleClass="primary-button"/>
                 <Button text="Reserve Book" onAction="#onOpenReservation" styleClass="primary-button"/>
+                <Button text="Fines" onAction="#onOpenFines" styleClass="primary-button"/>
             </HBox>
             <Label text="Dashboard, sidebar, and full navigation arrive in later phases (see docs/13-ImplementationRoadmap.md)."
                    wrapText="true" styleClass="status-label"/>

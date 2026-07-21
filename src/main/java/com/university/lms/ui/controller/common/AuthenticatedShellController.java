@@ -122,6 +122,11 @@ public final class AuthenticatedShellController implements Initializable {
     }
 
     @FXML
+    private void onOpenFines() {
+        appContext.getViewNavigator().navigate("/fxml/finance/FineManagement.fxml");
+    }
+
+    @FXML
     private void onToggleDarkMode() {
         Scene scene = darkModeToggle.getScene();
         scene.getStylesheets().removeIf(sheet -> sheet.endsWith("theme-light.css") || sheet.endsWith("theme-dark.css"));
