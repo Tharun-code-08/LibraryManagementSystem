@@ -1,5 +1,6 @@
 package com.university.lms.repository.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.SessionFactory;
@@ -48,6 +49,14 @@ public final class HibernateUserRepository implements UserRepository {
                     "from User u where u.username = :value or u.email = :value", User.class);
             query.setParameter("value", usernameOrEmail);
             return query.uniqueResultOptional();
+        }
+    }
+
+    @Override
+    public List<User> findAll() {
+        try (org.hibernate.Session session = sessionFactory.openSession()) {
+            Query<User> query = session.createQuery("from User u order by u.username", User.class);
+            return query.list();
         }
     }
 

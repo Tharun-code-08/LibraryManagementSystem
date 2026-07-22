@@ -35,18 +35,22 @@ import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.repository.NotificationRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
 import com.university.lms.repository.PaymentRepository;
+import com.university.lms.repository.PermissionRepository;
 import com.university.lms.repository.PublisherRepository;
 import com.university.lms.repository.PurchaseOrderRepository;
 import com.university.lms.repository.ReservationRepository;
 import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.SessionRepository;
+import com.university.lms.repository.SettingRepository;
+import com.university.lms.repository.BackupRepository;
 import com.university.lms.repository.StudentRepository;
 import com.university.lms.repository.SupplierRepository;
 import com.university.lms.repository.TagRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.repository.impl.HibernateAuditLogRepository;
 import com.university.lms.repository.impl.HibernateAuthorRepository;
+import com.university.lms.repository.impl.HibernateBackupRepository;
 import com.university.lms.repository.impl.HibernateBookCopyRepository;
 import com.university.lms.repository.impl.HibernateBookRepository;
 import com.university.lms.repository.impl.HibernateBranchRepository;
@@ -63,12 +67,14 @@ import com.university.lms.repository.impl.HibernateMembershipTypeRepository;
 import com.university.lms.repository.impl.HibernateNotificationRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
 import com.university.lms.repository.impl.HibernatePaymentRepository;
+import com.university.lms.repository.impl.HibernatePermissionRepository;
 import com.university.lms.repository.impl.HibernatePublisherRepository;
 import com.university.lms.repository.impl.HibernatePurchaseOrderRepository;
 import com.university.lms.repository.impl.HibernateReservationRepository;
 import com.university.lms.repository.impl.HibernateReturnRepository;
 import com.university.lms.repository.impl.HibernateRoleRepository;
 import com.university.lms.repository.impl.HibernateSessionRepository;
+import com.university.lms.repository.impl.HibernateSettingRepository;
 import com.university.lms.repository.impl.HibernateStudentRepository;
 import com.university.lms.repository.impl.HibernateSupplierRepository;
 import com.university.lms.repository.impl.HibernateTagRepository;
@@ -79,6 +85,16 @@ import com.university.lms.security.PasswordEncoder;
 import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.security.RememberMeStore;
 import com.university.lms.security.SessionManager;
+import com.university.lms.service.admin.BackupService;
+import com.university.lms.service.admin.ProcessExecutor;
+import com.university.lms.service.admin.RoleService;
+import com.university.lms.service.admin.SettingsService;
+import com.university.lms.service.admin.UserManagementService;
+import com.university.lms.service.admin.impl.BackupServiceImpl;
+import com.university.lms.service.admin.impl.RoleServiceImpl;
+import com.university.lms.service.admin.impl.SettingsServiceImpl;
+import com.university.lms.service.admin.impl.SystemProcessExecutor;
+import com.university.lms.service.admin.impl.UserManagementServiceImpl;
 import com.university.lms.service.analytics.DashboardService;
 import com.university.lms.service.analytics.impl.DashboardServiceImpl;
 import com.university.lms.service.auth.AuditLogService;
@@ -135,6 +151,7 @@ import com.university.lms.util.BarcodeGenerator;
 import com.university.lms.util.DesktopNotifier;
 import com.university.lms.util.ExcelReportExporter;
 import com.university.lms.util.FileStorageUtil;
+import com.university.lms.util.JdbcUrlParser;
 import com.university.lms.util.PdfReportExporter;
 import com.university.lms.util.QrCodeGenerator;
 import com.university.lms.util.ReceiptGenerator;
@@ -187,6 +204,9 @@ public final class AppContext {
     private final InventoryAuditItemRepository inventoryAuditItemRepository;
     private final DashboardRepository dashboardRepository;
     private final NotificationRepository notificationRepository;
+    private final PermissionRepository permissionRepository;
+    private final SettingRepository settingRepository;
+    private final BackupRepository backupRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -203,6 +223,7 @@ public final class AppContext {
     private final EmailService emailService;
     private final DesktopNotifier desktopNotifier;
     private final NotificationFactory notificationFactory;
+    private final ProcessExecutor processExecutor;
     private final BorrowLimitValidator borrowLimitValidator;
     private final FineCalculationStrategy fineCalculationStrategy;
     private final MembershipHolderResolver membershipHolderResolver;
@@ -231,6 +252,10 @@ public final class AppContext {
     private final DashboardService dashboardService;
     private final ReportService reportService;
     private final NotificationService notificationService;
+    private final UserManagementService userManagementService;
+    private final RoleService roleService;
+    private final SettingsService settingsService;
+    private final BackupService backupService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -271,6 +296,9 @@ public final class AppContext {
         this.inventoryAuditItemRepository = new HibernateInventoryAuditItemRepository(sessionFactory);
         this.dashboardRepository = new HibernateDashboardRepository(sessionFactory);
         this.notificationRepository = new HibernateNotificationRepository(sessionFactory);
+        this.permissionRepository = new HibernatePermissionRepository(sessionFactory);
+        this.settingRepository = new HibernateSettingRepository(sessionFactory);
+        this.backupRepository = new HibernateBackupRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -297,6 +325,7 @@ public final class AppContext {
         this.desktopNotifier = new DesktopNotifier();
         this.notificationFactory = new NotificationFactory(
                 new EmailNotifier(emailService), new DesktopNotifierChannel(desktopNotifier));
+        this.processExecutor = new SystemProcessExecutor();
         this.borrowLimitValidator = new BorrowLimitValidator();
         this.fineCalculationStrategy = new OverdueFineStrategy();
         this.membershipHolderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
@@ -370,6 +399,23 @@ public final class AppContext {
         this.reportService = new ReportServiceImpl(
                 bookService, studentService, facultyService, fineService, issueRepository, returnRepository,
                 bookCopyRepository, dashboardService, membershipHolderResolver, reportFactory);
+
+        this.userManagementService = new UserManagementServiceImpl(userRepository, roleRepository, auditLogService);
+        this.roleService = new RoleServiceImpl(roleRepository, permissionRepository, auditLogService);
+        this.settingsService = new SettingsServiceImpl(settingRepository, userRepository, auditLogService);
+
+        JdbcUrlParser.ConnectionInfo dbConnectionInfo = JdbcUrlParser.parse(configurationManager.db("db.jdbc-url"));
+        Path backupDirectory = Path.of(configurationManager.app("app.backup.directory", "./backups"));
+        this.backupService = new BackupServiceImpl(
+                backupRepository, userRepository, auditLogService, processExecutor,
+                dbConnectionInfo.host(), dbConnectionInfo.port(), dbConnectionInfo.database(),
+                configurationManager.db("db.username"), configurationManager.db("db.password"), backupDirectory);
+
+        boolean backupAutoEnabled = Boolean.parseBoolean(configurationManager.app("app.backup.auto-enabled", "true"));
+        if (backupAutoEnabled) {
+            this.scheduledExecutorService.scheduleAtFixedRate(
+                    () -> backupService.runBackup(null), 10, 24 * 60L, TimeUnit.MINUTES);
+        }
     }
 
     /**
@@ -511,6 +557,22 @@ public final class AppContext {
 
     public NotificationService getNotificationService() {
         return notificationService;
+    }
+
+    public UserManagementService getUserManagementService() {
+        return userManagementService;
+    }
+
+    public RoleService getRoleService() {
+        return roleService;
+    }
+
+    public SettingsService getSettingsService() {
+        return settingsService;
+    }
+
+    public BackupService getBackupService() {
+        return backupService;
     }
 
     public ViewNavigator getViewNavigator() {

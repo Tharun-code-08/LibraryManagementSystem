@@ -3,6 +3,10 @@ package com.university.lms.service.auth.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.university.lms.dto.request.AuditLogSearchCriteria;
+import com.university.lms.dto.response.AuditLogEntryDTO;
+import com.university.lms.entity.AuditLog;
+import com.university.lms.model.Page;
 import com.university.lms.repository.AuditLogRepository;
 import com.university.lms.service.auth.AuditLogService;
 
@@ -21,5 +25,18 @@ public final class AuditLogServiceImpl implements AuditLogService {
         auditLogRepository.save(actorUserId, action, entityType, entityId);
         auditLogger.info("action={} entityType={} entityId={} actorUserId={}",
                 action, entityType, entityId, actorUserId);
+    }
+
+    @Override
+    public Page<AuditLogEntryDTO> search(AuditLogSearchCriteria criteria) {
+        var entries = auditLogRepository.search(criteria).stream().map(this::toDto).toList();
+        long total = auditLogRepository.countSearchResults(criteria);
+        return new Page<>(entries, criteria.getPageNumber(), criteria.getPageSize(), total);
+    }
+
+    private AuditLogEntryDTO toDto(AuditLog auditLog) {
+        String actorUsername = auditLog.getUser() != null ? auditLog.getUser().getUsername() : "System";
+        return new AuditLogEntryDTO(auditLog.getId(), actorUsername, auditLog.getAction(),
+                auditLog.getEntityType(), auditLog.getEntityId(), auditLog.getCreatedAt());
     }
 }

@@ -146,6 +146,10 @@ public class User {
         return roles;
     }
 
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public boolean hasPermission(String permissionCode) {
         return roles.stream().anyMatch(role -> role.hasPermission(permissionCode));
     }

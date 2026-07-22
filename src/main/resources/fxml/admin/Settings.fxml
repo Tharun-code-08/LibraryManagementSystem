@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.admin.SettingsController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Label text="Settings" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Hyperlink text="Back to Home" onAction="#onBack"/>
+    </HBox>
+
+    <Label text="Click a value to edit it, then press Enter or click away to save." styleClass="status-label"/>
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+
+    <TableView fx:id="settingsTable" VBox.vgrow="ALWAYS" editable="true">
+        <columns>
+            <TableColumn fx:id="keyColumn" text="Key" prefWidth="260"/>
+            <TableColumn fx:id="valueColumn" text="Value" prefWidth="200" editable="true"/>
+            <TableColumn fx:id="categoryColumn" text="Category" prefWidth="120"/>
+        </columns>
+    </TableView>
+</VBox>

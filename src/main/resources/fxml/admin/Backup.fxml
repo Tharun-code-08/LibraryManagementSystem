@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.admin.BackupController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Label text="Backup &amp; Restore" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Button fx:id="runBackupButton" text="Run Backup Now" onAction="#onRunBackup" styleClass="primary-button"/>
+        <Hyperlink text="Back to Home" onAction="#onBack"/>
+    </HBox>
+
+    <Label fx:id="statusLabel" styleClass="status-label"/>
+
+    <TableView fx:id="backupTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="filePathColumn" text="File" prefWidth="280"/>
+            <TableColumn fx:id="sizeColumn" text="Size (bytes)" prefWidth="110"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="90"/>
+            <TableColumn fx:id="createdAtColumn" text="Created At" prefWidth="160"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="100"/>
+        </columns>
+    </TableView>
+</VBox>

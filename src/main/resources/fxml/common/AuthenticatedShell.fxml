@@ -129,6 +129,13 @@
                         <Button text="Inventory Audit" onAction="#onOpenInventoryAudit" styleClass="primary-button"/>
                         <Button text="Reports" onAction="#onOpenReports" styleClass="primary-button"/>
                     </HBox>
+                    <HBox alignment="CENTER" spacing="12">
+                        <Button text="Users" onAction="#onOpenUserManagement" styleClass="primary-button"/>
+                        <Button text="Roles &amp; Permissions" onAction="#onOpenRoleManagement" styleClass="primary-button"/>
+                        <Button text="Audit Log" onAction="#onOpenAuditLog" styleClass="primary-button"/>
+                        <Button text="Settings" onAction="#onOpenSettings" styleClass="primary-button"/>
+                        <Button text="Backup &amp; Restore" onAction="#onOpenBackup" styleClass="primary-button"/>
+                    </HBox>
                 </VBox>
             </VBox>
         </ScrollPane>

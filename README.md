@@ -136,5 +136,21 @@ mvn test
   day. UI: a "Notifications" quick action in the shell's top bar shows a live unread count and
   opens a Notification Center listing recent notifications with mark-as-read.
 
+- **Phase 10 — Admin: Users, Roles, Permissions, Audit Logs, Settings, Backup**: complete.
+  `UserManagementService` lists every account and lets an admin change status (active/locked/
+  disabled) and reassign roles; `RoleService` is the permission-matrix editor — list roles/
+  permissions and replace a role's permission set in one call. `AuditLogService` gained a
+  filterable, paginated `search` (actor, entity type, date range) on top of its existing
+  write-only `log`. New `Setting`/`Backup` entities (matching tables already defined by the
+  Phase 0 `V6` migration but never mapped — along with `Notification` from Phase 9, now fixed)
+  back `SettingsService` (upsert admin-editable key/value config) and `BackupService`, which
+  shells out to `mysqldump`/`mysql` (host/port/database parsed from the JDBC URL via a new
+  `JdbcUrlParser`) behind a swappable `ProcessExecutor` seam so it stays unit-testable; every
+  backup attempt is recorded win or lose, restore is a separate explicit, confirmed action, and
+  an optional nightly auto-backup sweep runs alongside the existing scheduled jobs. UI: five new
+  admin screens — User Management, Role/Permission Matrix, Audit Log (with PDF/Excel export via
+  the existing generic `ReportFactory`), Settings, and Backup & Restore — reachable from new
+  quick actions in the authenticated shell.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 10).
+(Phase 11).

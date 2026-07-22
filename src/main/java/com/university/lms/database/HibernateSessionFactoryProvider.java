@@ -11,6 +11,7 @@ import org.hibernate.service.ServiceRegistry;
 import com.university.lms.config.ConfigurationManager;
 import com.university.lms.entity.AuditLog;
 import com.university.lms.entity.Author;
+import com.university.lms.entity.Backup;
 import com.university.lms.entity.Book;
 import com.university.lms.entity.BookCopy;
 import com.university.lms.entity.Branch;
@@ -23,6 +24,7 @@ import com.university.lms.entity.Invoice;
 import com.university.lms.entity.Issue;
 import com.university.lms.entity.Membership;
 import com.university.lms.entity.MembershipType;
+import com.university.lms.entity.Notification;
 import com.university.lms.entity.PasswordResetToken;
 import com.university.lms.entity.Payment;
 import com.university.lms.entity.Permission;
@@ -32,6 +34,7 @@ import com.university.lms.entity.PurchaseOrderItem;
 import com.university.lms.entity.Reservation;
 import com.university.lms.entity.Return;
 import com.university.lms.entity.Role;
+import com.university.lms.entity.Setting;
 import com.university.lms.entity.Student;
 import com.university.lms.entity.Supplier;
 import com.university.lms.entity.Tag;
@@ -88,6 +91,9 @@ public final class HibernateSessionFactoryProvider {
         metadataSources.addAnnotatedClass(Invoice.class);
         metadataSources.addAnnotatedClass(InventoryAudit.class);
         metadataSources.addAnnotatedClass(InventoryAuditItem.class);
+        metadataSources.addAnnotatedClass(Notification.class);
+        metadataSources.addAnnotatedClass(Setting.class);
+        metadataSources.addAnnotatedClass(Backup.class);
 
         return metadataSources.buildMetadata().buildSessionFactory();
     }
