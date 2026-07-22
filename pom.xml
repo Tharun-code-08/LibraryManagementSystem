@@ -312,6 +312,15 @@
                             <mainJar>${project.build.finalName}.jar</mainJar>
                             <mainClass>${main.class}</mainClass>
                             <type>${jpackage.type}</type>
+                            <!-- Without these options the bundled JRE cannot locate JavaFX
+                                 modules at runtime — the app silently crashes on launch.
+                                 $APPDIR expands to the installation directory at runtime. -->
+                            <javaOptions>
+                                <option>--module-path $APPDIR</option>
+                                <option>--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base</option>
+                                <option>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
+                                <option>--add-opens=java.base/java.lang=ALL-UNNAMED</option>
+                            </javaOptions>
                         </configuration>
                     </plugin>
                 </plugins>
