@@ -430,6 +430,19 @@ public final class AppContext {
      * Builds the full application context: loads configuration, opens the connection pool,
      * applies pending Flyway migrations, then boots Hibernate on top of the same pool.
      */
+    /** Bootstrap using an already-constructed ConfigurationManager (e.g. after setup wizard). */
+    public static AppContext bootstrap(ConfigurationManager configurationManager) {
+        HikariDataSource dataSource = DatabaseConfig.buildDataSource(configurationManager);
+        log.info("Database connection pool '{}' initialized", dataSource.getPoolName());
+
+        FlywayMigrationRunner.migrate(dataSource);
+
+        SessionFactory sessionFactory = HibernateSessionFactoryProvider.build(configurationManager, dataSource);
+        log.info("Hibernate SessionFactory initialized");
+
+        return new AppContext(configurationManager, dataSource, sessionFactory);
+    }
+
     public static AppContext bootstrap() {
         ConfigurationManager configurationManager = new ConfigurationManager();
         HikariDataSource dataSource = DatabaseConfig.buildDataSource(configurationManager);
