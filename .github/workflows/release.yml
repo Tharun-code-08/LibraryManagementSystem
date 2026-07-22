@@ -15,7 +15,7 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            jpackage-type: EXE
+            jpackage-type: APP_IMAGE
           - os: macos-latest
             jpackage-type: DMG
           - os: ubuntu-latest
@@ -32,21 +32,18 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Add WiX Toolset to PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: echo "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin" >> $GITHUB_PATH
-
       - name: Build installer
         shell: bash
         run: mvn -Ppackage-installer clean package -Djpackage.type=${{ matrix.jpackage-type }} -DskipTests
 
-      - name: Rename Windows artifact
+      # APP_IMAGE produces a folder; zip it for a clean "extract-and-run" download
+      - name: Package Windows portable ZIP
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          src=$(ls target/dist/*.exe | head -1)
-          cp "$src" target/dist/LibraryManagementSystem-Setup.exe
+          cd target/dist
+          7z a LibraryManagementSystem-Windows.zip LibraryManagementSystem/
+          ls -lh LibraryManagementSystem-Windows.zip
 
       - name: Rename macOS artifact
         if: runner.os == 'macOS'
@@ -66,7 +63,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            target/dist/LibraryManagementSystem-Setup.exe
+            target/dist/LibraryManagementSystem-Windows.zip
             target/dist/LibraryManagementSystem.dmg
             target/dist/LibraryManagementSystem.deb
           fail_on_unmatched_files: false
