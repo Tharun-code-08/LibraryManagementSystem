@@ -230,6 +230,27 @@ OS's artifact:
   lookup path) and grace-period boundary cases (exactly-on vs. one-day-past) for
   `OverdueFineStrategy`.
 
+- **Phase 14 — UI/UX Polish & Test Depth**: complete. Every one of the 14 `TableView`-based
+  screens (catalog, people, circulation-adjacent finance, inventory, admin, reports) now shows a
+  spinner while its async load is in flight and a descriptive "no results" placeholder when a
+  search/filter returns zero rows, via a new `ui.util.TablePlaceholders` set through
+  `TableView.setPlaceholder(...)` — no FXML changes needed, since a table already renders
+  whatever placeholder is set whenever it has zero rows. The Book/Student/Faculty add-edit forms
+  now run the existing `BookValidator`/`StudentValidator`/`FacultyValidator` client-side before
+  dispatching to the service layer (they existed only in the service layer before, so errors
+  surfaced only after a round trip) and guard previously-unguarded `NumberFormatException` paths
+  (book cost, student year/semester) with a friendly message. Standard CRUD forms (Book/Student/
+  Faculty add-edit, Supplier/MembershipType inline-add, purchase-order line-item entry,
+  manual-fine entry, catalog/student search bars) now submit on Enter from any text field,
+  matching the pattern the circulation Issue/Return screens already used. Primary action buttons
+  (Save, Cancel, Search, Create, Add, Remove, Delete) gained keyboard mnemonics — previously
+  Ctrl+K global search was the only accelerator in the app. Added TestFX (`testfx-core`/
+  `testfx-junit5` 4.0.18, the JavaFX-21-compatible line) as the project's first UI test
+  framework — there's no maintained Monocle build for JavaFX 21, so tests render through a real
+  or virtual (Xvfb in headless CI) display; surefire gets a software-prism `argLine` so that
+  works without GPU/GL support. `TablePlaceholdersUiTest` is the first UI test, verified
+  end-to-end with `xvfb-run mvn test` in this sandbox.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) — all twelve phases
-of the roadmap are now complete; Phase 13 above is a subsequent hardening pass beyond the
+of the roadmap are now complete; Phases 13-14 above are subsequent hardening passes beyond the
 original roadmap.
