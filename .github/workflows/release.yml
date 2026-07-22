@@ -15,11 +15,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            jpackage-type: exe
+            jpackage-type: EXE
           - os: macos-latest
-            jpackage-type: dmg
+            jpackage-type: DMG
           - os: ubuntu-latest
-            jpackage-type: deb
+            jpackage-type: DEB
 
     runs-on: ${{ matrix.os }}
 
@@ -38,23 +38,26 @@ jobs:
         run: echo "C:\\Program Files (x86)\\WiX Toolset v3.11\\bin" >> $GITHUB_PATH
 
       - name: Build installer
+        shell: bash
         run: mvn -Ppackage-installer clean package -Djpackage.type=${{ matrix.jpackage-type }} -DskipTests
 
       - name: Rename Windows artifact
         if: runner.os == 'Windows'
-        shell: pwsh
+        shell: bash
         run: |
-          $src = Get-ChildItem target/dist/*.exe | Select-Object -First 1
-          Copy-Item $src.FullName target/dist/LibraryManagementSystem-Setup.exe
+          src=$(ls target/dist/*.exe | head -1)
+          cp "$src" target/dist/LibraryManagementSystem-Setup.exe
 
       - name: Rename macOS artifact
         if: runner.os == 'macOS'
+        shell: bash
         run: |
           src=$(ls target/dist/*.dmg | head -1)
           cp "$src" target/dist/LibraryManagementSystem.dmg
 
       - name: Rename Linux artifact
         if: runner.os == 'Linux'
+        shell: bash
         run: |
           src=$(ls target/dist/*.deb | head -1)
           cp "$src" target/dist/LibraryManagementSystem.deb
