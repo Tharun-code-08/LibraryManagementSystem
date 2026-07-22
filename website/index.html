@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Library Management System — Download</title>
+<meta name="description" content="A multi-branch Library Management System for real circulation desks: catalog, borrow, fine, and audit — one shared database, installed on every desk." />
+<style>
+  :root {
+    --paper: #eae2cc;
+    --paper-alt: #ded2ae;
+    --ink: #24261d;
+    --muted: #6b6650;
+    --accent: #a23a28;
+    --accent-ink: #fdf6e8;
+    --brass: #8c6a34;
+    --line: #c3b78e;
+    --card-shadow: rgba(36, 38, 29, 0.16);
+    --focus-ring: #2f6b52;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #1c1d17;
+      --paper-alt: #242519;
+      --ink: #e9e1c6;
+      --muted: #a79e7e;
+      --accent: #e07356;
+      --accent-ink: #241108;
+      --brass: #cba765;
+      --line: #3b3b2c;
+      --card-shadow: rgba(0, 0, 0, 0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1c1d17;
+    --paper-alt: #242519;
+    --ink: #e9e1c6;
+    --muted: #a79e7e;
+    --accent: #e07356;
+    --accent-ink: #241108;
+    --brass: #cba765;
+    --line: #3b3b2c;
+    --card-shadow: rgba(0, 0, 0, 0.45);
+  }
+  :root[data-theme="light"] {
+    --paper: #eae2cc;
+    --paper-alt: #ded2ae;
+    --ink: #24261d;
+    --muted: #6b6650;
+    --accent: #a23a28;
+    --accent-ink: #fdf6e8;
+    --brass: #8c6a34;
+    --line: #c3b78e;
+    --card-shadow: rgba(36, 38, 29, 0.16);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, "Consolas", "Liberation Mono", monospace;
+    letter-spacing: 0.02em;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 28px;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.01em;
+  }
+  .brand .mono {
+    font-size: 0.7rem;
+    color: var(--brass);
+    border: 1px solid var(--brass);
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+  .topbar nav {
+    display: flex;
+    gap: 28px;
+    font-size: 0.92rem;
+  }
+  .topbar nav a { text-decoration: none; border-bottom: 1px solid transparent; }
+  .topbar nav a:hover { border-bottom-color: var(--ink); }
+
+  /* ---------- Hero: the catalog card ---------- */
+  .hero-stage {
+    max-width: 1040px;
+    margin: 8px auto 64px;
+    padding: 0 28px;
+  }
+  .catalog-card {
+    position: relative;
+    background: var(--paper-alt);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    box-shadow: 0 18px 40px -18px var(--card-shadow);
+    padding: 56px 56px 44px 92px;
+    display: grid;
+    gap: 22px;
+  }
+  /* punch holes along the top edge, like a real catalog card */
+  .catalog-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 18px;
+    background-image: radial-gradient(circle, var(--paper) 3.5px, transparent 3.6px);
+    background-size: 34px 18px;
+    background-position: 20px 0;
+    background-repeat: repeat-x;
+    border-bottom: 1px dashed var(--line);
+  }
+  /* vertical call-number spine label */
+  .spine {
+    position: absolute;
+    left: 22px;
+    top: 40px;
+    bottom: 24px;
+    width: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spine span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.78rem;
+    color: var(--brass);
+    letter-spacing: 0.14em;
+    white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(2.1rem, 4.4vw, 3.1rem);
+    line-height: 1.08;
+    font-weight: 700;
+    text-wrap: balance;
+    max-width: 15ch;
+  }
+  .dek {
+    margin: 0;
+    max-width: 56ch;
+    font-size: 1.08rem;
+    color: var(--muted);
+  }
+  .stamp-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px;
+    margin-top: 6px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 22px;
+    border-radius: 2px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid var(--ink);
+    cursor: pointer;
+    transition: transform 0.12s ease;
+  }
+  .btn-stamp {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border-color: var(--accent);
+  }
+  .btn-stamp:active { transform: scale(0.96) rotate(-1deg); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-ghost:hover { background: var(--paper); }
+  .btn .mono { font-size: 0.78rem; opacity: 0.85; }
+
+  /* ---------- Ledger rule ---------- */
+  .ledger-rule {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 56px 0 40px;
+  }
+
+  /* ---------- Section headings ---------- */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .section-head h2 {
+    font-size: 1.5rem;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .section-head .mono {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Feature catalog tiles ---------- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .tile {
+    background: var(--paper);
+    padding: 24px;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+  .tile .call-no {
+    font-size: 0.72rem;
+    color: var(--brass);
+    display: inline-block;
+    width: fit-content;
+    padding: 1px 6px;
+    border: 1px solid var(--brass);
+    border-radius: 2px;
+  }
+  .tile h3 {
+    margin: 0;
+    font-size: 1.08rem;
+    font-weight: 700;
+  }
+  .tile p {
+    margin: 0;
+    font-size: 0.94rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Stack strip ---------- */
+  .stack-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+  .stack-strip span::before {
+    content: "·";
+    margin-right: 26px;
+    color: var(--brass);
+  }
+  .stack-strip span:first-child::before { content: none; margin: 0; }
+
+  /* ---------- Download desk ---------- */
+  .desk {
+    background: var(--paper-alt);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 40px;
+    display: grid;
+    gap: 28px;
+  }
+  .desk-top {
+    display: grid;
+    gap: 8px;
+  }
+  .desk-top h2 { margin: 0; font-size: 1.6rem; text-wrap: balance; }
+  .desk-top p { margin: 0; color: var(--muted); max-width: 60ch; }
+  .platform-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .platform {
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 18px;
+    display: grid;
+    gap: 8px;
+    background: var(--paper);
+  }
+  .platform .plat-name {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .platform .plat-name .mono {
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .platform a.btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+  .req-slip {
+    border-top: 1px dashed var(--line);
+    padding-top: 18px;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+  .req-slip .mono { color: var(--ink); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: 64px;
+    padding: 28px 0 48px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+  footer a { text-decoration: underline; text-decoration-color: var(--line); }
+
+  @media (max-width: 640px) {
+    .catalog-card { padding: 48px 24px 32px 64px; }
+    .spine { left: 12px; width: 24px; }
+    .topbar { flex-direction: column; align-items: flex-start; gap: 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">Library Management System <span class="mono">v0.1</span></div>
+    <nav>
+      <a href="#features">Card Catalog</a>
+      <a href="#download">Checkout</a>
+      <a href="https://github.com/Tharun-code-08/LibraryManagementSystem">Source</a>
+    </nav>
+  </div>
+
+  <div class="hero-stage">
+    <div class="catalog-card">
+      <div class="spine"><span>LMS · CIRC 025.3</span></div>
+      <p class="eyebrow">Desktop application · Java 21 / JavaFX</p>
+      <h1>Run circulation like a library, not a spreadsheet.</h1>
+      <p class="dek">
+        Catalog, circulation, fines, procurement, and reporting for a real multi-branch library —
+        one shared MySQL database, installed on every desk. Built with clean architecture and
+        role-based access control from the ground up.
+      </p>
+      <div class="stamp-row">
+        <a class="btn btn-stamp" href="#download">Check Out the Installer <span class="mono">→ DOWNLOAD</span></a>
+        <a class="btn btn-ghost" href="https://github.com/Tharun-code-08/LibraryManagementSystem">Read the Source <span class="mono">GITHUB</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="stack-strip">
+      <span>Java 21</span>
+      <span>JavaFX</span>
+      <span>Hibernate / JPA</span>
+      <span>HikariCP</span>
+      <span>MySQL 8</span>
+      <span>Flyway</span>
+      <span>Clean Architecture</span>
+    </div>
+
+    <hr class="ledger-rule" />
+
+    <div id="features">
+      <div class="section-head">
+        <h2>What's on the shelves</h2>
+        <span class="mono">14 modules, one desk</span>
+      </div>
+      <div class="card-grid">
+        <div class="tile">
+          <span class="call-no mono">CAT.02</span>
+          <h3>Catalog &amp; Copies</h3>
+          <p>Authors, publishers, nested categories, and per-copy tracking — with QR codes and Code128 barcode labels generated on save.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">PPL.03</span>
+          <h3>Students &amp; Faculty</h3>
+          <p>Registration, membership types, and bulk import from CSV or Excel, each with a per-row rejected-rows report.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">CIRC.14</span>
+          <h3>Issue, Return, Reserve</h3>
+          <p>Barcode-scan-driven circulation desk, FIFO reservation queueing, borrow-limit and grace-period enforcement.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">FIN.05</span>
+          <h3>Fines &amp; Payments</h3>
+          <p>Overdue and condition-based fines, partial payments, waivers, and one-page PDF receipts.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">INV.06</span>
+          <h3>Procurement &amp; Audits</h3>
+          <p>Supplier and purchase-order workflow through approval to receipt, plus shelf-verification inventory audits.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">RPT.08</span>
+          <h3>Dashboard &amp; Reports</h3>
+          <p>Live stat cards and trend charts, ten exportable report types to PDF or Excel.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">SEC.09</span>
+          <h3>Roles &amp; Permissions</h3>
+          <p>Every state-changing action is gated by a permission code — librarian, student, faculty, and admin see exactly what they're allowed to touch.</p>
+        </div>
+        <div class="tile">
+          <span class="call-no mono">ADM.10</span>
+          <h3>Admin &amp; Backup</h3>
+          <p>User and role management, a full audit trail, system settings, and one-click database backup/restore.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="ledger-rule" />
+
+    <div id="download">
+      <div class="desk">
+        <div class="desk-top">
+          <h2>Take it to your desk</h2>
+          <p>
+            Each installer bundles its own Java runtime — nothing else to install. Point it at your
+            library's shared MySQL database on first run and Flyway sets up the schema automatically.
+          </p>
+        </div>
+        <div class="platform-row">
+          <div class="platform">
+            <div class="plat-name">Windows <span class="mono">.MSI</span></div>
+            <a class="btn btn-stamp" href="https://github.com/Tharun-code-08/LibraryManagementSystem/releases/latest">Download for Windows</a>
+          </div>
+          <div class="platform">
+            <div class="plat-name">macOS <span class="mono">.DMG</span></div>
+            <a class="btn btn-stamp" href="https://github.com/Tharun-code-08/LibraryManagementSystem/releases/latest">Download for macOS</a>
+          </div>
+          <div class="platform">
+            <div class="plat-name">Linux <span class="mono">.DEB</span></div>
+            <a class="btn btn-stamp" href="https://github.com/Tharun-code-08/LibraryManagementSystem/releases/latest">Download for Linux</a>
+          </div>
+        </div>
+        <div class="req-slip">
+          Requires a reachable MySQL 8.x instance (host it once, share it across every install) &mdash;
+          see <span class="mono">database.properties</span> in the repository for connection setup.
+          No local Java install needed; the installer carries its own runtime.
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>Library Management System — desktop circulation software.</span>
+      <span><a href="https://github.com/Tharun-code-08/LibraryManagementSystem">Source on GitHub</a></span>
+    </footer>
+  </div>
+
+</body>
+</html>
