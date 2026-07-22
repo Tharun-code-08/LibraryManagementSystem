@@ -26,11 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Java 21
+      # Liberica JDK Full bundles JavaFX modules so jlink can include them in the
+      # app's runtime image. Temurin has no JavaFX — the app silently crashes on launch.
+      - name: Set up Liberica JDK 21 Full (includes JavaFX)
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: 'liberica'
+          java-package: 'jdk+fx'
 
       - name: Build installer
         shell: bash
