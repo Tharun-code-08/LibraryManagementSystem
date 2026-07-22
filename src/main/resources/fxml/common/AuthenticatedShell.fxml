@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="app-root"
+            fx:controller="com.university.lms.ui.controller.common.AuthenticatedShellController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="top-nav">
+            <padding>
+                <Insets top="12" right="20" bottom="12" left="20"/>
+            </padding>
+            <Label text="LibraryOS" styleClass="brand-title-small"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Label fx:id="welcomeLabel"/>
+            <Button text="🔍 Search (Ctrl+K)" onAction="#onOpenGlobalSearch"/>
+            <Button fx:id="notificationsButton" text="Notifications" onAction="#onOpenNotifications"/>
+            <ToggleButton fx:id="darkModeToggle" text="Dark Mode" onAction="#onToggleDarkMode"/>
+            <Button text="Change Password" onAction="#onChangePassword"/>
+            <Button text="Logout" onAction="#onLogout" styleClass="primary-button"/>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="16">
+                <padding>
+                    <Insets top="20" right="24" bottom="24" left="24"/>
+                </padding>
+
+                <Label text="Dashboard" styleClass="brand-title-small"/>
+
+                <HBox spacing="12">
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Total Books" styleClass="status-label"/>
+                        <Label fx:id="totalBooksLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Issued" styleClass="status-label"/>
+                        <Label fx:id="issuedBooksLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Available" styleClass="status-label"/>
+                        <Label fx:id="availableBooksLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Overdue" styleClass="status-label"/>
+                        <Label fx:id="overdueBooksLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Reservations" styleClass="status-label"/>
+                        <Label fx:id="reservationsLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Students" styleClass="status-label"/>
+                        <Label fx:id="studentsLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" alignment="CENTER" spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="Faculty" styleClass="status-label"/>
+                        <Label fx:id="facultyLabel" text="—" styleClass="brand-title-small"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="12">
+                    <VBox styleClass="bootstrap-card" HBox.hgrow="ALWAYS">
+                        <Label text="Monthly Issues vs Returns" styleClass="status-label"/>
+                        <LineChart fx:id="monthlyActivityChart" legendVisible="true" animated="false">
+                            <xAxis>
+                                <CategoryAxis label="Month"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Count"/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" HBox.hgrow="ALWAYS">
+                        <Label text="Book Categories" styleClass="status-label"/>
+                        <PieChart fx:id="categoryDistributionChart" legendVisible="true" animated="false"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="12">
+                    <VBox styleClass="bootstrap-card" HBox.hgrow="ALWAYS">
+                        <Label text="Popular Books" styleClass="status-label"/>
+                        <BarChart fx:id="popularBooksChart" legendVisible="false" animated="false">
+                            <xAxis>
+                                <CategoryAxis label="Book"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Times Issued"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                    <VBox styleClass="bootstrap-card" HBox.hgrow="ALWAYS" prefWidth="320">
+                        <Label text="Recent Activity" styleClass="status-label"/>
+                        <ListView fx:id="recentActivityList" prefHeight="240"/>
+                    </VBox>
+                </HBox>
+
+                <VBox styleClass="bootstrap-card" spacing="12">
+                    <Label text="Quick Actions" styleClass="status-label"/>
+                    <HBox alignment="CENTER" spacing="12">
+                        <Button text="Book Catalog" onAction="#onOpenBookCatalog" styleClass="primary-button"/>
+                        <Button text="Students" onAction="#onOpenStudents" styleClass="primary-button"/>
+                        <Button text="Faculty" onAction="#onOpenFaculty" styleClass="primary-button"/>
+                        <Button text="Membership Types" onAction="#onOpenMembershipTypes" styleClass="primary-button"/>
+                    </HBox>
+                    <HBox alignment="CENTER" spacing="12">
+                        <Button text="Issue Book" onAction="#onOpenIssue" styleClass="primary-button"/>
+                        <Button text="Return Book" onAction="#onOpenReturn" styleClass="primary-button"/>
+                        <Button text="Reserve Book" onAction="#onOpenReservation" styleClass="primary-button"/>
+                        <Button text="Fines" onAction="#onOpenFines" styleClass="primary-button"/>
+                    </HBox>
+                    <HBox alignment="CENTER" spacing="12">
+                        <Button text="Suppliers" onAction="#onOpenSuppliers" styleClass="primary-button"/>
+                        <Button text="Purchase Orders" onAction="#onOpenPurchaseOrders" styleClass="primary-button"/>
+                        <Button text="Inventory Audit" onAction="#onOpenInventoryAudit" styleClass="primary-button"/>
+                        <Button text="Reports" onAction="#onOpenReports" styleClass="primary-button"/>
+                    </HBox>
+                    <HBox alignment="CENTER" spacing="12">
+                        <Button text="Users" onAction="#onOpenUserManagement" styleClass="primary-button"/>
+                        <Button text="Roles &amp; Permissions" onAction="#onOpenRoleManagement" styleClass="primary-button"/>
+                        <Button text="Audit Log" onAction="#onOpenAuditLog" styleClass="primary-button"/>
+                        <Button text="Settings" onAction="#onOpenSettings" styleClass="primary-button"/>
+                        <Button text="Backup &amp; Restore" onAction="#onOpenBackup" styleClass="primary-button"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

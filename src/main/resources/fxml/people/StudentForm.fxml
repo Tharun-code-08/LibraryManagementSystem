@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fitToWidth="true" styleClass="app-root"
+            fx:controller="com.university.lms.ui.controller.people.StudentFormController">
+    <VBox spacing="16">
+        <padding>
+            <Insets top="24" right="32" bottom="24" left="32"/>
+        </padding>
+        <Label fx:id="headerLabel" styleClass="brand-title-small"/>
+
+        <GridPane hgap="12" vgap="12" styleClass="auth-card">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints minWidth="160"/>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="260"/>
+            </columnConstraints>
+
+            <Label text="Username *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Email *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="emailField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Temporary Password *" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <PasswordField fx:id="temporaryPasswordField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Student ID *" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="studentIdField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <Label text="Roll Number *" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="rollNumberField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+            <Label text="Department" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextField fx:id="departmentField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+            <Label text="Year" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <TextField fx:id="yearField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+            <Label text="Semester" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+            <TextField fx:id="semesterField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+            <Label text="Phone" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+            <TextField fx:id="phoneField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+            <Label text="Address" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+            <TextField fx:id="addressField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+            <Label text="Guardian Name" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+            <TextField fx:id="guardianNameField" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+            <Label text="Guardian Phone" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+            <TextField fx:id="guardianPhoneField" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+            <Label text="Branch *" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="branchCombo" maxWidth="Infinity" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+
+            <Label text="Membership Type" GridPane.rowIndex="13" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="membershipTypeCombo" maxWidth="Infinity" GridPane.rowIndex="13" GridPane.columnIndex="1"/>
+
+            <Label text="Photo" GridPane.rowIndex="14" GridPane.columnIndex="0"/>
+            <HBox spacing="10" alignment="CENTER_LEFT" GridPane.rowIndex="14" GridPane.columnIndex="1">
+                <Button text="Choose Photo" onAction="#onChoosePhoto"/>
+                <Label fx:id="photoLabel" styleClass="status-label"/>
+            </HBox>
+        </GridPane>
+
+        <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
+
+        <HBox spacing="12">
+            <Button fx:id="saveButton" text="Save" onAction="#onSave" styleClass="primary-button"/>
+            <Button text="Cancel" onAction="#onCancel"/>
+        </HBox>
+    </VBox>
+</ScrollPane>

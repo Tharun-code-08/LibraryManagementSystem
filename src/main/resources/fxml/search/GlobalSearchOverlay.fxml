@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:id="overlayRoot"
+           id="global-search-overlay"
+           styleClass="search-overlay-backdrop"
+           onMouseClicked="#onBackdropClicked"
+           fx:controller="com.university.lms.ui.controller.search.GlobalSearchOverlayController">
+    <VBox styleClass="search-card" maxWidth="520" maxHeight="420" spacing="10" onMouseClicked="#onCardClicked">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <TextField fx:id="searchField" promptText="Search books, authors, students, faculty… (Esc to close)"/>
+        <ListView fx:id="resultsList" VBox.vgrow="ALWAYS"/>
+    </VBox>
+</StackPane>

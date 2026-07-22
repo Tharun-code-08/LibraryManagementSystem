@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="20" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.admin.UserManagementController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <VBox spacing="10" HBox.hgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT">
+            <Label text="User Management" styleClass="brand-title-small"/>
+            <HBox HBox.hgrow="ALWAYS"/>
+            <Hyperlink text="Back to Home" onAction="#onBack"/>
+        </HBox>
+        <TableView fx:id="userTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="usernameColumn" text="Username" prefWidth="130"/>
+                <TableColumn fx:id="emailColumn" text="Email" prefWidth="200"/>
+                <TableColumn fx:id="statusColumn" text="Status" prefWidth="90"/>
+                <TableColumn fx:id="rolesColumn" text="Roles" prefWidth="200"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox spacing="8" prefWidth="260" styleClass="auth-card">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        <Label text="Edit User" styleClass="status-label"/>
+        <Label text="Status"/>
+        <ComboBox fx:id="statusCombo" maxWidth="Infinity"/>
+        <Label text="Roles"/>
+        <VBox fx:id="roleCheckBoxContainer" spacing="4"/>
+        <Button fx:id="saveButton" text="Save" onAction="#onSave" styleClass="primary-button" maxWidth="Infinity"/>
+        <Label fx:id="errorLabel" styleClass="error-label" wrapText="true"/>
+    </VBox>
+</HBox>

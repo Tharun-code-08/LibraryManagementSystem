@@ -1,0 +1,9 @@
+target/
+logs/
+backups/
+generated/
+*.class
+.idea/
+*.iml
+.vscode/
+.DS_Store

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="12" styleClass="app-root"
+      fx:controller="com.university.lms.ui.controller.finance.FineManagementController">
+    <padding>
+        <Insets top="20" right="24" bottom="20" left="24"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <Label text="Fines" styleClass="brand-title-small"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <Hyperlink text="Back to Home" onAction="#onBack"/>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <ComboBox fx:id="statusFilter" promptText="Status"/>
+        <Button text="Filter" onAction="#onFilter"/>
+        <HBox HBox.hgrow="ALWAYS"/>
+        <TextField fx:id="manualIssueIdField" promptText="Issue ID" prefWidth="90"/>
+        <TextField fx:id="manualAmountField" promptText="Amount" prefWidth="90"/>
+        <TextField fx:id="manualReasonField" promptText="Reason" prefWidth="160"/>
+        <Button text="+ Add Manual Fine" onAction="#onAddManualFine" styleClass="primary-button"/>
+    </HBox>
+
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+
+    <TableView fx:id="fineTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="bookColumn" text="Book" prefWidth="200"/>
+            <TableColumn fx:id="memberColumn" text="Member" prefWidth="140"/>
+            <TableColumn fx:id="reasonColumn" text="Reason" prefWidth="90"/>
+            <TableColumn fx:id="amountColumn" text="Amount" prefWidth="90"/>
+            <TableColumn fx:id="remainingColumn" text="Remaining" prefWidth="90"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="90"/>
+            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="130"/>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER" spacing="12">
+        <Button fx:id="prevButton" text="◀ Previous" onAction="#onPrevPage"/>
+        <Label fx:id="pageLabel"/>
+        <Button fx:id="nextButton" text="Next ▶" onAction="#onNextPage"/>
+    </HBox>
+</VBox>
