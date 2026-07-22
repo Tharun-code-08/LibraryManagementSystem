@@ -315,9 +315,8 @@
                             <mainJar>${project.build.finalName}.jar</mainJar>
                             <mainClass>${main.class}</mainClass>
                             <type>${jpackage.type}</type>
-                            <!-- Tell jlink to pull JavaFX modules from Liberica JDK Full into
-                                 the bundled runtime. The launcher then resolves them as system
-                                 modules — no --module-path trick needed at runtime. -->
+                            <!-- Liberica JDK Full bundles JavaFX; addModules tells jlink
+                                 to include them in the runtime image. -->
                             <addModules>javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.swing</addModules>
                             <javaOptions>
                                 <option>--add-opens=javafx.fxml/com.sun.javafx.fxml=ALL-UNNAMED</option>
