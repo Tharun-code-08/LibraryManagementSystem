@@ -23,6 +23,7 @@ import com.university.lms.business.MembershipHolderResolver;
 import com.university.lms.business.OverdueFineStrategy;
 import com.university.lms.business.ReservationQueueManager;
 import com.university.lms.repository.CategoryRepository;
+import com.university.lms.repository.DashboardRepository;
 import com.university.lms.repository.FacultyRepository;
 import com.university.lms.repository.FineRepository;
 import com.university.lms.repository.InventoryAuditItemRepository;
@@ -49,6 +50,7 @@ import com.university.lms.repository.impl.HibernateBookCopyRepository;
 import com.university.lms.repository.impl.HibernateBookRepository;
 import com.university.lms.repository.impl.HibernateBranchRepository;
 import com.university.lms.repository.impl.HibernateCategoryRepository;
+import com.university.lms.repository.impl.HibernateDashboardRepository;
 import com.university.lms.repository.impl.HibernateFacultyRepository;
 import com.university.lms.repository.impl.HibernateFineRepository;
 import com.university.lms.repository.impl.HibernateInventoryAuditItemRepository;
@@ -75,6 +77,8 @@ import com.university.lms.security.PasswordEncoder;
 import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.security.RememberMeStore;
 import com.university.lms.security.SessionManager;
+import com.university.lms.service.analytics.DashboardService;
+import com.university.lms.service.analytics.impl.DashboardServiceImpl;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.auth.AuthService;
 import com.university.lms.service.auth.impl.AuditLogServiceImpl;
@@ -165,6 +169,7 @@ public final class AppContext {
     private final InvoiceRepository invoiceRepository;
     private final InventoryAuditRepository inventoryAuditRepository;
     private final InventoryAuditItemRepository inventoryAuditItemRepository;
+    private final DashboardRepository dashboardRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -200,6 +205,7 @@ public final class AppContext {
     private final PurchaseOrderService purchaseOrderService;
     private final InvoiceService invoiceService;
     private final InventoryAuditService inventoryAuditService;
+    private final DashboardService dashboardService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -238,6 +244,7 @@ public final class AppContext {
         this.invoiceRepository = new HibernateInvoiceRepository(sessionFactory);
         this.inventoryAuditRepository = new HibernateInventoryAuditRepository(sessionFactory);
         this.inventoryAuditItemRepository = new HibernateInventoryAuditItemRepository(sessionFactory);
+        this.dashboardRepository = new HibernateDashboardRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -308,6 +315,8 @@ public final class AppContext {
         this.inventoryAuditService = new InventoryAuditServiceImpl(
                 inventoryAuditRepository, inventoryAuditItemRepository, bookCopyRepository, branchRepository,
                 userRepository, auditLogService, authContext);
+
+        this.dashboardService = new DashboardServiceImpl(dashboardRepository, auditLogRepository);
     }
 
     /**
@@ -437,6 +446,10 @@ public final class AppContext {
 
     public InventoryAuditService getInventoryAuditService() {
         return inventoryAuditService;
+    }
+
+    public DashboardService getDashboardService() {
+        return dashboardService;
     }
 
     public ViewNavigator getViewNavigator() {

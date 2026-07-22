@@ -1,6 +1,9 @@
 package com.university.lms.repository.impl;
 
+import java.util.List;
+
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import com.university.lms.entity.AuditLog;
 import com.university.lms.entity.User;
@@ -22,6 +25,16 @@ public final class HibernateAuditLogRepository implements AuditLogRepository {
             AuditLog entry = new AuditLog(actorReference, action, entityType, entityId, null, null, null);
             session.persist(entry);
             session.getTransaction().commit();
+        }
+    }
+
+    @Override
+    public List<AuditLog> findRecent(int limit) {
+        try (org.hibernate.Session session = sessionFactory.openSession()) {
+            Query<AuditLog> query = session.createQuery(
+                    "from AuditLog a order by a.createdAt desc", AuditLog.class);
+            query.setMaxResults(limit);
+            return query.list();
         }
     }
 }

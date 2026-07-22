@@ -97,6 +97,15 @@ mvn test
   a paginated/filterable Purchase Order list with a line-item entry form and a detail screen
   exposing the workflow actions plus invoice recording, and an Inventory Audit screen (start →
   scan → complete) — all reachable from the authenticated shell.
+- **Phase 7 — Dashboard & Analytics**: complete. A new `DashboardRepository` backs live
+  aggregation queries (active book/copy counts by status, open-overdue issues, active
+  reservations, student/faculty headcounts, monthly issue/return trends via portable HQL
+  `year()`/`month()` grouping, category distribution, and top-borrowed books), plus a
+  `findRecent` query on the audit log for a recent-activity feed. `DashboardService` composes
+  these into stat cards, chart series, and activity entries. The authenticated home screen now
+  shows seven live stat cards, a monthly issues-vs-returns line chart, a category-distribution
+  pie chart, a popular-books bar chart, and a recent-activity feed, above the existing quick
+  actions.
 
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 7 — Dashboard & Analytics).
+(Phase 8 — Reports: PDF/Excel export, print).

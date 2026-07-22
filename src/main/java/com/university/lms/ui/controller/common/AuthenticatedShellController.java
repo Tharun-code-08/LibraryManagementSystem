@@ -1,25 +1,41 @@
 package com.university.lms.ui.controller.common;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.animation.PauseTransition;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
 import javafx.util.Duration;
 
 import com.university.lms.config.AppContext;
+import com.university.lms.dto.response.CategoryDistributionDTO;
+import com.university.lms.dto.response.DashboardStatsDTO;
+import com.university.lms.dto.response.MonthlyActivityDTO;
+import com.university.lms.dto.response.PopularBookDTO;
+import com.university.lms.dto.response.RecentActivityDTO;
 import com.university.lms.dto.response.UserDTO;
 
 /**
- * Placeholder shell shown immediately after a successful login. Confirms role-based routing and
- * client-side session-idle-timeout work end-to-end; replaced by the real sidebar/dashboard shell
- * in later phases (see docs/13-ImplementationRoadmap.md, Phase 7).
+ * The authenticated home screen: live dashboard stat cards and analytics charts, plus the quick
+ * action buttons that route to every other module (a full sidebar/navigation shell arrives in
+ * Phase 11's UI polish pass — see docs/13-ImplementationRoadmap.md).
  */
 public final class AuthenticatedShellController implements Initializable {
+
+    private static final int MONTHS_OF_HISTORY = 6;
+    private static final int POPULAR_BOOKS_LIMIT = 5;
+    private static final int RECENT_ACTIVITY_LIMIT = 15;
 
     private final AppContext appContext;
     private PauseTransition idleTimer;
@@ -29,6 +45,39 @@ public final class AuthenticatedShellController implements Initializable {
 
     @FXML
     private ToggleButton darkModeToggle;
+
+    @FXML
+    private Label totalBooksLabel;
+
+    @FXML
+    private Label issuedBooksLabel;
+
+    @FXML
+    private Label availableBooksLabel;
+
+    @FXML
+    private Label overdueBooksLabel;
+
+    @FXML
+    private Label reservationsLabel;
+
+    @FXML
+    private Label studentsLabel;
+
+    @FXML
+    private Label facultyLabel;
+
+    @FXML
+    private LineChart<String, Number> monthlyActivityChart;
+
+    @FXML
+    private PieChart categoryDistributionChart;
+
+    @FXML
+    private BarChart<String, Number> popularBooksChart;
+
+    @FXML
+    private ListView<String> recentActivityList;
 
     public AuthenticatedShellController(AppContext appContext) {
         this.appContext = appContext;
@@ -51,6 +100,84 @@ public final class AuthenticatedShellController implements Initializable {
                 idleTimer.playFromStart();
             }
         });
+
+        loadDashboard();
+    }
+
+    private void loadDashboard() {
+        appContext.getAsyncExecutor().run(
+                () -> appContext.getDashboardService().getStats(),
+                this::onStatsLoaded,
+                throwable -> { /* stat cards simply stay blank if analytics can't load */ });
+
+        appContext.getAsyncExecutor().run(
+                () -> appContext.getDashboardService().getMonthlyActivity(MONTHS_OF_HISTORY),
+                this::onMonthlyActivityLoaded,
+                throwable -> { });
+
+        appContext.getAsyncExecutor().run(
+                () -> appContext.getDashboardService().getCategoryDistribution(),
+                this::onCategoryDistributionLoaded,
+                throwable -> { });
+
+        appContext.getAsyncExecutor().run(
+                () -> appContext.getDashboardService().getPopularBooks(POPULAR_BOOKS_LIMIT),
+                this::onPopularBooksLoaded,
+                throwable -> { });
+
+        appContext.getAsyncExecutor().run(
+                () -> appContext.getDashboardService().getRecentActivity(RECENT_ACTIVITY_LIMIT),
+                this::onRecentActivityLoaded,
+                throwable -> { });
+    }
+
+    private void onStatsLoaded(DashboardStatsDTO stats) {
+        totalBooksLabel.setText(String.valueOf(stats.totalBooks()));
+        issuedBooksLabel.setText(String.valueOf(stats.issuedBooks()));
+        availableBooksLabel.setText(String.valueOf(stats.availableBooks()));
+        overdueBooksLabel.setText(String.valueOf(stats.overdueBooks()));
+        reservationsLabel.setText(String.valueOf(stats.activeReservations()));
+        studentsLabel.setText(String.valueOf(stats.totalStudents()));
+        facultyLabel.setText(String.valueOf(stats.totalFaculty()));
+    }
+
+    private void onMonthlyActivityLoaded(List<MonthlyActivityDTO> months) {
+        XYChart.Series<String, Number> issuedSeries = new XYChart.Series<>();
+        issuedSeries.setName("Issued");
+        XYChart.Series<String, Number> returnedSeries = new XYChart.Series<>();
+        returnedSeries.setName("Returned");
+
+        for (MonthlyActivityDTO month : months) {
+            issuedSeries.getData().add(new XYChart.Data<>(month.yearMonth(), month.issuedCount()));
+            returnedSeries.getData().add(new XYChart.Data<>(month.yearMonth(), month.returnedCount()));
+        }
+
+        monthlyActivityChart.getData().setAll(issuedSeries, returnedSeries);
+    }
+
+    private void onCategoryDistributionLoaded(List<CategoryDistributionDTO> categories) {
+        categoryDistributionChart.setData(FXCollections.observableArrayList(
+                categories.stream()
+                        .map(category -> new PieChart.Data(category.categoryName(), category.bookCount()))
+                        .toList()));
+    }
+
+    private void onPopularBooksLoaded(List<PopularBookDTO> books) {
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Times Issued");
+        for (PopularBookDTO book : books) {
+            series.getData().add(new XYChart.Data<>(book.bookTitle(), book.issueCount()));
+        }
+        popularBooksChart.getData().setAll(series);
+    }
+
+    private void onRecentActivityLoaded(List<RecentActivityDTO> activities) {
+        recentActivityList.setItems(FXCollections.observableArrayList(
+                activities.stream()
+                        .map(activity -> activity.actorUsername() + " — " + activity.action()
+                                + " (" + activity.entityType() + (activity.entityId() != null ? " #" + activity.entityId() : "") + ")"
+                                + " — " + activity.createdAt())
+                        .toList()));
     }
 
     private void attachActivityListeners(Scene scene) {
