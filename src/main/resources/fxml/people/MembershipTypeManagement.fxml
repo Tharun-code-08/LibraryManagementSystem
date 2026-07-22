@@ -39,13 +39,13 @@
             <Insets top="20" right="20" bottom="20" left="20"/>
         </padding>
         <Label text="Add Membership Type" styleClass="status-label"/>
-        <TextField fx:id="nameField" promptText="Name"/>
-        <TextField fx:id="maxBorrowLimitField" promptText="Max Borrow Limit"/>
-        <TextField fx:id="loanPeriodDaysField" promptText="Loan Period (days)"/>
-        <TextField fx:id="finePerDayField" promptText="Fine Per Day"/>
-        <TextField fx:id="gracePeriodDaysField" promptText="Grace Period (days)"/>
-        <TextField fx:id="renewalLimitField" promptText="Renewal Limit"/>
-        <Button text="Save" onAction="#onSave" styleClass="primary-button" maxWidth="Infinity"/>
+        <TextField fx:id="nameField" promptText="Name" onAction="#onSave"/>
+        <TextField fx:id="maxBorrowLimitField" promptText="Max Borrow Limit" onAction="#onSave"/>
+        <TextField fx:id="loanPeriodDaysField" promptText="Loan Period (days)" onAction="#onSave"/>
+        <TextField fx:id="finePerDayField" promptText="Fine Per Day" onAction="#onSave"/>
+        <TextField fx:id="gracePeriodDaysField" promptText="Grace Period (days)" onAction="#onSave"/>
+        <TextField fx:id="renewalLimitField" promptText="Renewal Limit" onAction="#onSave"/>
+        <Button text="_Save" mnemonicParsing="true" onAction="#onSave" styleClass="primary-button" maxWidth="Infinity"/>
         <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
     </VBox>
 </HBox>

@@ -32,22 +32,22 @@
             </columnConstraints>
 
             <Label text="ISBN *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <TextField fx:id="isbnField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <TextField fx:id="isbnField" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Title *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <TextField fx:id="titleField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <TextField fx:id="titleField" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Subtitle" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <TextField fx:id="subtitleField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <TextField fx:id="subtitleField" GridPane.rowIndex="2" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Edition" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <TextField fx:id="editionField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <TextField fx:id="editionField" GridPane.rowIndex="3" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Volume" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <TextField fx:id="volumeField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <TextField fx:id="volumeField" GridPane.rowIndex="4" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Language" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-            <TextField fx:id="languageField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <TextField fx:id="languageField" GridPane.rowIndex="5" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Publisher" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
             <ComboBox fx:id="publisherCombo" editable="true" maxWidth="Infinity" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
@@ -56,26 +56,26 @@
             <ComboBox fx:id="categoryCombo" maxWidth="Infinity" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
             <Label text="Authors" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-            <TextField fx:id="authorNamesField" promptText="Comma-separated names" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+            <TextField fx:id="authorNamesField" promptText="Comma-separated names" GridPane.rowIndex="8" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Tags" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-            <TextField fx:id="tagNamesField" promptText="Comma-separated tags" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+            <TextField fx:id="tagNamesField" promptText="Comma-separated tags" GridPane.rowIndex="9" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Cost" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
-            <TextField fx:id="costField" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+            <TextField fx:id="costField" GridPane.rowIndex="10" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Purchase Date" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
             <DatePicker fx:id="purchaseDatePicker" maxWidth="Infinity" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
 
             <Label text="Vendor" GridPane.rowIndex="12" GridPane.columnIndex="0"/>
-            <TextField fx:id="vendorField" GridPane.rowIndex="12" GridPane.columnIndex="1"/>
+            <TextField fx:id="vendorField" GridPane.rowIndex="12" GridPane.columnIndex="1" onAction="#onSave"/>
         </GridPane>
 
         <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
 
         <HBox spacing="12">
-            <Button fx:id="saveButton" text="Save" onAction="#onSave" styleClass="primary-button"/>
-            <Button text="Cancel" onAction="#onCancel"/>
+            <Button fx:id="saveButton" text="_Save" mnemonicParsing="true" onAction="#onSave" styleClass="primary-button"/>
+            <Button text="_Cancel" mnemonicParsing="true" onAction="#onCancel"/>
         </HBox>
     </VBox>
 </ScrollPane>

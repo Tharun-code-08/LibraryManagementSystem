@@ -32,28 +32,28 @@
             </columnConstraints>
 
             <Label text="Username *" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <TextField fx:id="usernameField" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Email *" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <TextField fx:id="emailField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <TextField fx:id="emailField" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Temporary Password *" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <PasswordField fx:id="temporaryPasswordField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <PasswordField fx:id="temporaryPasswordField" GridPane.rowIndex="2" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Faculty ID *" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <TextField fx:id="facultyIdField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <TextField fx:id="facultyIdField" GridPane.rowIndex="3" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Department" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <TextField fx:id="departmentField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <TextField fx:id="departmentField" GridPane.rowIndex="4" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Designation" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-            <TextField fx:id="designationField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <TextField fx:id="designationField" GridPane.rowIndex="5" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Phone" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-            <TextField fx:id="phoneField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            <TextField fx:id="phoneField" GridPane.rowIndex="6" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Office" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-            <TextField fx:id="officeField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            <TextField fx:id="officeField" GridPane.rowIndex="7" GridPane.columnIndex="1" onAction="#onSave"/>
 
             <Label text="Membership Type" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
             <ComboBox fx:id="membershipTypeCombo" maxWidth="Infinity" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
@@ -62,8 +62,8 @@
         <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
 
         <HBox spacing="12">
-            <Button fx:id="saveButton" text="Save" onAction="#onSave" styleClass="primary-button"/>
-            <Button text="Cancel" onAction="#onCancel"/>
+            <Button fx:id="saveButton" text="_Save" mnemonicParsing="true" onAction="#onSave" styleClass="primary-button"/>
+            <Button text="_Cancel" mnemonicParsing="true" onAction="#onCancel"/>
         </HBox>
     </VBox>
 </ScrollPane>

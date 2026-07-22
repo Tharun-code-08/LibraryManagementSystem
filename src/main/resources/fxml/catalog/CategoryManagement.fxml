@@ -34,9 +34,9 @@
         <Label text="Add / Manage Category" styleClass="status-label"/>
         <TextField fx:id="nameField" promptText="Category name"/>
         <TextArea fx:id="descriptionField" promptText="Description" prefRowCount="3"/>
-        <Button text="Add as Root Category" onAction="#onAddRootCategory" maxWidth="Infinity"/>
-        <Button text="Add as Sub-Category of Selected" onAction="#onAddSubCategory" maxWidth="Infinity"/>
-        <Button fx:id="deleteButton" text="Delete Selected" onAction="#onDelete" maxWidth="Infinity"/>
+        <Button text="Add as _Root Category" mnemonicParsing="true" onAction="#onAddRootCategory" maxWidth="Infinity"/>
+        <Button text="Add as Su_b-Category of Selected" mnemonicParsing="true" onAction="#onAddSubCategory" maxWidth="Infinity"/>
+        <Button fx:id="deleteButton" text="_Delete Selected" mnemonicParsing="true" onAction="#onDelete" maxWidth="Infinity"/>
         <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
     </VBox>
 </HBox>

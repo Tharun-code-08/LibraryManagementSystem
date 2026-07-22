@@ -25,8 +25,8 @@
     </HBox>
 
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <TextField fx:id="searchField" promptText="Search by username, student ID, or roll number" HBox.hgrow="ALWAYS"/>
-        <Button text="Search" onAction="#onSearch"/>
+        <TextField fx:id="searchField" promptText="Search by username, student ID, or roll number" HBox.hgrow="ALWAYS" onAction="#onSearch"/>
+        <Button text="_Search" mnemonicParsing="true" onAction="#onSearch"/>
         <HBox HBox.hgrow="ALWAYS"/>
         <Button text="Bulk Import (Excel)" onAction="#onBulkImport"/>
         <Button text="+ Add Student" onAction="#onAddStudent" styleClass="primary-button"/>
