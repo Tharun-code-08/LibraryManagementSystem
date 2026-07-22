@@ -232,6 +232,14 @@ public final class AuthenticatedShellController implements Initializable {
     }
 
     @FXML
+    private void onOpenGlobalSearch() {
+        Runnable opener = appContext.getGlobalSearchOpener();
+        if (opener != null) {
+            opener.run();
+        }
+    }
+
+    @FXML
     private void onOpenBookCatalog() {
         appContext.getViewNavigator().navigate("/fxml/catalog/BookList.fxml");
     }

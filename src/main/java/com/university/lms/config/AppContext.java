@@ -5,6 +5,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javafx.scene.layout.StackPane;
+
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -145,6 +147,8 @@ import com.university.lms.service.notification.impl.NotificationServiceImpl;
 import com.university.lms.service.notification.impl.SmtpEmailServiceImpl;
 import com.university.lms.service.report.ReportService;
 import com.university.lms.service.report.impl.ReportServiceImpl;
+import com.university.lms.service.search.GlobalSearchService;
+import com.university.lms.service.search.impl.GlobalSearchServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
@@ -256,9 +260,12 @@ public final class AppContext {
     private final RoleService roleService;
     private final SettingsService settingsService;
     private final BackupService backupService;
+    private final GlobalSearchService globalSearchService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
+    private StackPane overlayHost;
+    private Runnable globalSearchOpener;
 
     private AppContext(ConfigurationManager configurationManager,
                         HikariDataSource dataSource,
@@ -403,6 +410,7 @@ public final class AppContext {
         this.userManagementService = new UserManagementServiceImpl(userRepository, roleRepository, auditLogService);
         this.roleService = new RoleServiceImpl(roleRepository, permissionRepository, auditLogService);
         this.settingsService = new SettingsServiceImpl(settingRepository, userRepository, auditLogService);
+        this.globalSearchService = new GlobalSearchServiceImpl(bookService, authorService, studentService, facultyService);
 
         JdbcUrlParser.ConnectionInfo dbConnectionInfo = JdbcUrlParser.parse(configurationManager.db("db.jdbc-url"));
         Path backupDirectory = Path.of(configurationManager.app("app.backup.directory", "./backups"));
@@ -575,12 +583,37 @@ public final class AppContext {
         return backupService;
     }
 
+    public GlobalSearchService getGlobalSearchService() {
+        return globalSearchService;
+    }
+
     public ViewNavigator getViewNavigator() {
         return viewNavigator;
     }
 
     public void setViewNavigator(ViewNavigator viewNavigator) {
         this.viewNavigator = viewNavigator;
+    }
+
+    /** The window-wide {@link StackPane} screens are rendered into — the one legitimate place an
+     *  overlay (e.g. the global search popup) can add itself on top of the current screen. */
+    public StackPane getOverlayHost() {
+        return overlayHost;
+    }
+
+    public void setOverlayHost(StackPane overlayHost) {
+        this.overlayHost = overlayHost;
+    }
+
+    /** Opens the global search overlay — set once by {@code AppShellController}, invoked from
+     *  anywhere (the Ctrl+K accelerator, a "Search" button in a shell's top bar) that needs to
+     *  trigger it without depending on that controller directly. */
+    public Runnable getGlobalSearchOpener() {
+        return globalSearchOpener;
+    }
+
+    public void setGlobalSearchOpener(Runnable globalSearchOpener) {
+        this.globalSearchOpener = globalSearchOpener;
     }
 
     /**

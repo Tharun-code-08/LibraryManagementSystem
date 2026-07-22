@@ -28,11 +28,23 @@
     -fx-text-alignment: center;
 }
 
+/*
+ * -color-primary-variant (not -color-primary) is the button fill in both themes: it's the
+ * darker of the two blues in the light palette and, importantly, still dark enough in the
+ * dark palette for white text to clear the WCAG-AA 4.5:1 contrast ratio — -color-primary alone
+ * is a light, high-key blue in the dark theme and fails that ratio with white text.
+ */
 .primary-button {
     -fx-background-radius: 8;
     -fx-padding: 10 20 10 20;
     -fx-font-weight: 600;
     -fx-cursor: hand;
+    -fx-background-color: -color-primary-variant;
+    -fx-text-fill: -color-on-primary;
+}
+
+.primary-button:hover {
+    -fx-background-color: derive(-color-primary-variant, -12%);
 }
 
 .auth-background {
@@ -45,9 +57,14 @@
     -fx-effect: dropshadow(gaussian, rgba(16,24,40,0.25), 32, 0, 0, 8);
 }
 
+/*
+ * -color-error-text (not -color-accent) is used here: -color-accent (#FF6B6B in the light
+ * theme) is only ~2.8:1 against a white surface — well under the WCAG-AA 4.5:1 minimum for
+ * normal-size text — so error/validation copy gets its own, darker-in-light-theme-only token.
+ */
 .error-label {
     -fx-font-size: 13px;
-    -fx-text-fill: -color-accent;
+    -fx-text-fill: -color-error-text;
     -fx-wrap-text: true;
 }
 
@@ -60,4 +77,16 @@
     -fx-font-size: 18px;
     -fx-font-weight: 700;
     -fx-text-fill: -color-primary;
+}
+
+.search-overlay-backdrop {
+    -fx-background-color: rgba(15, 20, 32, 0.55);
+    -fx-alignment: top-center;
+    -fx-padding: 80 0 0 0;
+}
+
+.search-card {
+    -fx-background-radius: 12;
+    -fx-background-color: -color-surface;
+    -fx-effect: dropshadow(gaussian, rgba(16,24,40,0.35), 32, 0, 0, 12);
 }

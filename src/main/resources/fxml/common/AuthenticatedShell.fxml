@@ -27,6 +27,7 @@
             <Label text="LibraryOS" styleClass="brand-title-small"/>
             <HBox HBox.hgrow="ALWAYS"/>
             <Label fx:id="welcomeLabel"/>
+            <Button text="🔍 Search (Ctrl+K)" onAction="#onOpenGlobalSearch"/>
             <Button fx:id="notificationsButton" text="Notifications" onAction="#onOpenNotifications"/>
             <ToggleButton fx:id="darkModeToggle" text="Dark Mode" onAction="#onToggleDarkMode"/>
             <Button text="Change Password" onAction="#onChangePassword"/>

@@ -15,5 +15,9 @@
     -color-text-secondary: #5B6478;
     -color-text-disabled: #A6ADBE;
 
+    /* Accessibility-audit additions (Phase 11) — see base.css for why these exist. */
+    -color-on-primary: #FFFFFF;
+    -color-error-text: #B91C1C;
+
     -fx-background-color: -color-bg;
 }

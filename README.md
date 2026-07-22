@@ -152,5 +152,20 @@ mvn test
   the existing generic `ReportFactory`), Settings, and Backup & Restore — reachable from new
   quick actions in the authenticated shell.
 
+- **Phase 11 — Global Search & Polish**: complete. `GlobalSearchService` composes the existing
+  `BookService`/`AuthorService`/`StudentService`/`FacultyService` search methods into one
+  cross-entity keyword search (books/ISBN/authors/students/faculty). UI: a `Ctrl+K` window-wide
+  keyboard shortcut (or the shell's "Search" button) opens a `GlobalSearchOverlay` — an
+  instant-results popup pushed onto the shared root `StackPane` on top of whatever screen is
+  showing, debounced as you type, that jumps straight into the matched book/student/faculty's
+  edit form (reusing the existing navigation-parameter pattern) or the book catalog for an
+  author match; Escape or a backdrop click dismisses it. Accessibility/contrast audit against
+  `09-ColorPalette.md`: found and fixed two WCAG-AA failures — `.error-label` was using
+  `-color-accent` directly, ~2.8:1 against a white surface in the light theme (now a dedicated
+  `-color-error-text` token, ~6.5:1); `.primary-button` had no background/text color rule at all
+  (falling back to the default JavaFX gray button), now filled with `-color-primary-variant` +
+  a new `-color-on-primary` (white) token, chosen because `-color-primary` itself is too light
+  in the dark theme for white text to clear 4.5:1.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 11).
+(Phase 12).
