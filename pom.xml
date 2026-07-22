@@ -304,7 +304,7 @@
                         <configuration>
                             <!-- Bumped by hand alongside <version> above — jpackage requires a
                                  plain numeric version (no "-SNAPSHOT"). -->
-                            <appVersion>0.1.0</appVersion>
+                            <appVersion>1.0.0</appVersion>
                             <name>LibraryManagementSystem</name>
                             <vendor>University Library</vendor>
                             <destination>${project.build.directory}/dist</destination>
