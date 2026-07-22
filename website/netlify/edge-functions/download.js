@@ -1,7 +1,7 @@
 const FILES = {
   windows: {
-    url: 'https://github.com/Tharun-code-08/LibraryManagementSystem/releases/latest/download/LibraryManagementSystem-Setup.exe',
-    filename: 'LibraryManagementSystem-Setup.exe',
+    url: 'https://github.com/Tharun-code-08/LibraryManagementSystem/releases/latest/download/LibraryManagementSystem-Windows.zip',
+    filename: 'LibraryManagementSystem-Windows.zip',
   },
   macos: {
     url: 'https://github.com/Tharun-code-08/LibraryManagementSystem/releases/latest/download/LibraryManagementSystem.dmg',
