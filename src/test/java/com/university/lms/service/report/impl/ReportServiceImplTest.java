@@ -43,6 +43,7 @@ import com.university.lms.repository.FacultyRepository;
 import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.StudentRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.analytics.DashboardService;
 import com.university.lms.service.catalog.BookService;
 import com.university.lms.service.finance.FineService;
@@ -87,6 +88,9 @@ class ReportServiceImplTest {
     @Mock
     private FacultyRepository facultyRepository;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     @TempDir
     private Path tempDir;
 
@@ -100,7 +104,8 @@ class ReportServiceImplTest {
         ReportFactory reportFactory = new ReportFactory(
                 new PdfReportExporter(tempDir.resolve("pdf")), new ExcelReportExporter(tempDir.resolve("excel")));
         reportService = new ReportServiceImpl(bookService, studentService, facultyService, fineService,
-                issueRepository, returnRepository, bookCopyRepository, dashboardService, holderResolver, reportFactory);
+                issueRepository, returnRepository, bookCopyRepository, dashboardService, holderResolver, reportFactory,
+                permissionEvaluator);
 
         MembershipType type = new MembershipType("STUDENT_STANDARD", 3, 14, BigDecimal.valueOf(5), 1, 2);
         Membership membership = new Membership(type, HolderType.STUDENT, 1L, LocalDate.now(), LocalDate.now().plusDays(300));

@@ -29,6 +29,7 @@ import com.university.lms.repository.PurchaseOrderRepository;
 import com.university.lms.repository.SupplierRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.impl.PurchaseOrderServiceImpl;
 
@@ -50,6 +51,9 @@ class PurchaseOrderServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private PurchaseOrderServiceImpl purchaseOrderService;
     private Supplier supplier;
     private User librarian;
@@ -57,7 +61,7 @@ class PurchaseOrderServiceImplTest {
     @BeforeEach
     void setUp() {
         purchaseOrderService = new PurchaseOrderServiceImpl(purchaseOrderRepository, supplierRepository,
-                bookRepository, userRepository, auditLogService, new AuthContext());
+                bookRepository, userRepository, auditLogService, new AuthContext(), permissionEvaluator);
 
         supplier = new Supplier("Acme Books", "Jane", "555-1000", "jane@acme.test", null);
         librarian = new User("librarian", "lib@library.local", "hash", null);

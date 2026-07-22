@@ -23,6 +23,7 @@ import com.university.lms.dto.request.ManualFineRequestDTO;
 import com.university.lms.dto.response.FineDTO;
 import com.university.lms.exception.BusinessException;
 import com.university.lms.model.Page;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Fine dashboard: filter by status, waive a fine, jump to payment collection, or add a manual fine. */
 public final class FineManagementController implements Initializable {
@@ -96,6 +97,8 @@ public final class FineManagementController implements Initializable {
 
         statusFilter.setItems(FXCollections.observableArrayList("All", "PENDING", "PARTIAL", "PAID", "WAIVED"));
         statusFilter.getSelectionModel().selectFirst();
+
+        fineTable.setPlaceholder(TablePlaceholders.noResults("No fines found."));
 
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button payButton = new Button("Pay");
@@ -194,6 +197,8 @@ public final class FineManagementController implements Initializable {
 
     private void loadPage(int pageNumber) {
         errorLabel.setText("");
+        fineTable.setItems(FXCollections.observableArrayList());
+        fineTable.setPlaceholder(TablePlaceholders.loading());
         String status = statusFilter.getValue();
         FineSearchCriteria criteria = FineSearchCriteria.builder()
                 .status("All".equals(status) ? null : status)
@@ -204,13 +209,17 @@ public final class FineManagementController implements Initializable {
         appContext.getAsyncExecutor().run(
                 () -> appContext.getFineService().search(criteria),
                 this::onPageLoaded,
-                throwable -> errorLabel.setText(throwable instanceof BusinessException
-                        ? throwable.getMessage() : "Unable to load fines right now."));
+                throwable -> {
+                    fineTable.setPlaceholder(TablePlaceholders.noResults("No fines found."));
+                    errorLabel.setText(throwable instanceof BusinessException
+                            ? throwable.getMessage() : "Unable to load fines right now.");
+                });
     }
 
     private void onPageLoaded(Page<FineDTO> page) {
         currentPage = page.getPageNumber();
         totalElements = page.getTotalElements();
+        fineTable.setPlaceholder(TablePlaceholders.noResults("No fines found."));
         fineTable.setItems(FXCollections.observableArrayList(page.getContent()));
         int totalPages = Math.max(page.getTotalPages(), 1);
         pageLabel.setText("Page " + (currentPage + 1) + " of " + totalPages + " (" + totalElements + " fines)");

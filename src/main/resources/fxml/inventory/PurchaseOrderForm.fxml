@@ -31,20 +31,20 @@
 
             <Label text="Add Line Item" styleClass="status-label"/>
             <HBox spacing="10">
-                <TextField fx:id="itemDescriptionField" promptText="Description" HBox.hgrow="ALWAYS"/>
-                <TextField fx:id="itemQuantityField" promptText="Qty" prefWidth="70"/>
-                <TextField fx:id="itemUnitCostField" promptText="Unit Cost" prefWidth="100"/>
-                <Button text="+ Add" onAction="#onAddItem"/>
+                <TextField fx:id="itemDescriptionField" promptText="Description" HBox.hgrow="ALWAYS" onAction="#onAddItem"/>
+                <TextField fx:id="itemQuantityField" promptText="Qty" prefWidth="70" onAction="#onAddItem"/>
+                <TextField fx:id="itemUnitCostField" promptText="Unit Cost" prefWidth="100" onAction="#onAddItem"/>
+                <Button text="+ _Add" mnemonicParsing="true" onAction="#onAddItem"/>
             </HBox>
             <ListView fx:id="itemsList" prefHeight="150"/>
-            <Button text="Remove Selected Item" onAction="#onRemoveSelectedItem"/>
+            <Button text="_Remove Selected Item" mnemonicParsing="true" onAction="#onRemoveSelectedItem"/>
         </VBox>
 
         <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
 
         <HBox spacing="12">
-            <Button fx:id="createButton" text="Create Purchase Order" onAction="#onCreate" styleClass="primary-button"/>
-            <Button text="Cancel" onAction="#onCancel"/>
+            <Button fx:id="createButton" text="_Create Purchase Order" mnemonicParsing="true" onAction="#onCreate" styleClass="primary-button"/>
+            <Button text="_Cancel" mnemonicParsing="true" onAction="#onCancel"/>
         </HBox>
     </VBox>
 </ScrollPane>

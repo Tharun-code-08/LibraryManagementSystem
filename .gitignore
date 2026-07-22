@@ -7,3 +7,4 @@ generated/
 *.iml
 .vscode/
 .DS_Store
+.claude/

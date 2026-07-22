@@ -34,6 +34,7 @@ import com.university.lms.repository.InventoryAuditItemRepository;
 import com.university.lms.repository.InventoryAuditRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.impl.InventoryAuditServiceImpl;
 
@@ -58,6 +59,9 @@ class InventoryAuditServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private InventoryAuditServiceImpl auditService;
     private InventoryAudit audit;
     private BookCopy copy;
@@ -65,7 +69,7 @@ class InventoryAuditServiceImplTest {
     @BeforeEach
     void setUp() {
         auditService = new InventoryAuditServiceImpl(inventoryAuditRepository, inventoryAuditItemRepository,
-                bookCopyRepository, branchRepository, userRepository, auditLogService, new AuthContext());
+                bookCopyRepository, branchRepository, userRepository, auditLogService, new AuthContext(), permissionEvaluator);
 
         Branch branch = new Branch("Main Campus", "MAIN", null, null);
         User librarian = new User("librarian", "lib@library.local", "hash", null);

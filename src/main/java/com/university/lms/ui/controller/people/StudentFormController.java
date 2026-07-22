@@ -21,11 +21,14 @@ import com.university.lms.dto.response.StudentDTO;
 import com.university.lms.dto.request.StudentRegistrationRequestDTO;
 import com.university.lms.entity.Branch;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.validation.ValidationResult;
+import com.university.lms.validation.impl.StudentValidator;
 
 /** Add/Edit Student form. {@code AppContext.getNavigationParameter()} carries the student id to edit, if any. */
 public final class StudentFormController implements Initializable {
 
     private final AppContext appContext;
+    private final StudentValidator validator = new StudentValidator();
     private Long editingStudentId;
     private String uploadedPhotoPath;
 
@@ -203,10 +206,19 @@ public final class StudentFormController implements Initializable {
     @FXML
     private void onSave() {
         messageLabel.setText("");
-        saveButton.setDisable(true);
 
         Branch branch = branchCombo.getValue();
         MembershipTypeDTO membershipType = membershipTypeCombo.getValue();
+
+        Integer year;
+        Integer semester;
+        try {
+            year = parseIntOrNull(yearField.getText());
+            semester = parseIntOrNull(semesterField.getText());
+        } catch (NumberFormatException e) {
+            messageLabel.setText("Year and semester must be whole numbers.");
+            return;
+        }
 
         StudentRegistrationRequestDTO request = StudentRegistrationRequestDTO.builder()
                 .id(editingStudentId)
@@ -216,8 +228,8 @@ public final class StudentFormController implements Initializable {
                 .studentId(studentIdField.getText())
                 .rollNumber(rollNumberField.getText())
                 .department(departmentField.getText())
-                .year(parseIntOrNull(yearField.getText()))
-                .semester(parseIntOrNull(semesterField.getText()))
+                .year(year)
+                .semester(semester)
                 .phone(phoneField.getText())
                 .address(addressField.getText())
                 .guardianName(guardianNameField.getText())
@@ -227,6 +239,13 @@ public final class StudentFormController implements Initializable {
                 .membershipTypeId(membershipType != null ? membershipType.id() : null)
                 .build();
 
+        ValidationResult validation = validator.validate(request);
+        if (!validation.isValid()) {
+            messageLabel.setText(String.join(" ", validation.getErrors()));
+            return;
+        }
+
+        saveButton.setDisable(true);
         appContext.getAsyncExecutor().run(
                 () -> editingStudentId == null ? appContext.getStudentService().register(request)
                         : appContext.getStudentService().update(request),

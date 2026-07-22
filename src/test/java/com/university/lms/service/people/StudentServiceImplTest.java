@@ -28,6 +28,7 @@ import com.university.lms.repository.StudentRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
 import com.university.lms.security.PasswordEncoder;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.impl.StudentServiceImpl;
 
@@ -55,6 +56,9 @@ class StudentServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private StudentServiceImpl studentService;
     private Branch branch;
 
@@ -63,7 +67,7 @@ class StudentServiceImplTest {
         AuthContext authContext = new AuthContext();
         studentService = new StudentServiceImpl(
                 studentRepository, userRepository, roleRepository, branchRepository,
-                passwordEncoder, membershipService, auditLogService, authContext, 365);
+                passwordEncoder, membershipService, auditLogService, authContext, permissionEvaluator, 365);
 
         branch = new Branch("Main Campus", "MAIN", null, null);
 

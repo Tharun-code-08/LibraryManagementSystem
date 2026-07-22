@@ -37,6 +37,7 @@ import com.university.lms.repository.CategoryRepository;
 import com.university.lms.repository.PublisherRepository;
 import com.university.lms.repository.TagRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.catalog.BookService;
 import com.university.lms.util.BarcodeGenerator;
@@ -58,6 +59,7 @@ public final class BookServiceImpl implements BookService {
     private final QrCodeGenerator qrCodeGenerator;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     private final Validator<BookRequestDTO> bookValidator = new BookValidator();
 
@@ -66,7 +68,7 @@ public final class BookServiceImpl implements BookService {
                             CategoryRepository categoryRepository, TagRepository tagRepository,
                             BranchRepository branchRepository, BarcodeGenerator barcodeGenerator,
                             QrCodeGenerator qrCodeGenerator, AuditLogService auditLogService,
-                            AuthContext authContext) {
+                            AuthContext authContext, PermissionEvaluator permissionEvaluator) {
         this.bookRepository = bookRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.authorRepository = authorRepository;
@@ -78,10 +80,12 @@ public final class BookServiceImpl implements BookService {
         this.qrCodeGenerator = qrCodeGenerator;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public BookDTO createBook(BookRequestDTO request) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         validate(request);
         bookRepository.findByIsbn(request.getIsbn()).ifPresent(existing -> {
             throw new DuplicateResourceException("A book with ISBN " + request.getIsbn() + " already exists.");
@@ -104,6 +108,7 @@ public final class BookServiceImpl implements BookService {
 
     @Override
     public BookDTO updateBook(BookRequestDTO request) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         if (request.getId() == null) {
             throw new IllegalArgumentException("Book id is required for an update.");
         }
@@ -143,6 +148,7 @@ public final class BookServiceImpl implements BookService {
 
     @Override
     public void deleteBook(Long id) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", id));
         book.setDeleted(true);
         bookRepository.save(book);
@@ -151,6 +157,7 @@ public final class BookServiceImpl implements BookService {
 
     @Override
     public void restoreBook(Long id) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         Book book = bookRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Book", id));
         book.setDeleted(false);
         bookRepository.save(book);
@@ -171,6 +178,7 @@ public final class BookServiceImpl implements BookService {
 
     @Override
     public BookCopyDTO addCopy(BookCopyCreateDTO request) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         Book book = bookRepository.findById(request.bookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book", request.bookId()));
         Branch branch = branchRepository.findById(request.branchId())
@@ -190,6 +198,7 @@ public final class BookServiceImpl implements BookService {
 
     @Override
     public ImportResultDTO bulkImport(List<BookImportRowDTO> rows) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         int successCount = 0;
         List<ImportResultDTO.RejectedRow> rejectedRows = new ArrayList<>();
 

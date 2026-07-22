@@ -12,6 +12,7 @@ import com.university.lms.entity.Role;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.PermissionRepository;
 import com.university.lms.repository.RoleRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.admin.RoleService;
 import com.university.lms.service.auth.AuditLogService;
 
@@ -20,21 +21,25 @@ public final class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final AuditLogService auditLogService;
+    private final PermissionEvaluator permissionEvaluator;
 
     public RoleServiceImpl(RoleRepository roleRepository, PermissionRepository permissionRepository,
-                            AuditLogService auditLogService) {
+                            AuditLogService auditLogService, PermissionEvaluator permissionEvaluator) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.auditLogService = auditLogService;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public List<RoleDTO> listRoles() {
+        permissionEvaluator.requirePermission("USER_MANAGE");
         return roleRepository.findAll().stream().map(this::toDto).toList();
     }
 
     @Override
     public List<PermissionDTO> listPermissions() {
+        permissionEvaluator.requirePermission("USER_MANAGE");
         return permissionRepository.findAll().stream()
                 .map(p -> new PermissionDTO(p.getId(), p.getCode(), p.getDescription()))
                 .toList();
@@ -42,6 +47,7 @@ public final class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO updatePermissions(Long roleId, Set<Long> permissionIds, Long actorUserId) {
+        permissionEvaluator.requirePermission("USER_MANAGE");
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role", roleId));
         List<Permission> allPermissions = permissionRepository.findAll();

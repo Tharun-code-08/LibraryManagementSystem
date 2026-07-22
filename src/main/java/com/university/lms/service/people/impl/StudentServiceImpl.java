@@ -27,6 +27,7 @@ import com.university.lms.repository.StudentRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
 import com.university.lms.security.PasswordEncoder;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.MembershipService;
 import com.university.lms.service.people.StudentService;
@@ -44,6 +45,7 @@ public final class StudentServiceImpl implements StudentService {
     private final MembershipService membershipService;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
     private final int defaultMembershipValidityDays;
 
     private final Validator<StudentRegistrationRequestDTO> studentValidator = new StudentValidator();
@@ -52,7 +54,7 @@ public final class StudentServiceImpl implements StudentService {
                                RoleRepository roleRepository, BranchRepository branchRepository,
                                PasswordEncoder passwordEncoder, MembershipService membershipService,
                                AuditLogService auditLogService, AuthContext authContext,
-                               int defaultMembershipValidityDays) {
+                               PermissionEvaluator permissionEvaluator, int defaultMembershipValidityDays) {
         this.studentRepository = studentRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -61,11 +63,13 @@ public final class StudentServiceImpl implements StudentService {
         this.membershipService = membershipService;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
         this.defaultMembershipValidityDays = defaultMembershipValidityDays;
     }
 
     @Override
     public StudentDTO register(StudentRegistrationRequestDTO request) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         validate(request);
         ensureUsernameAndEmailAvailable(request.getUsername(), request.getEmail());
         studentRepository.findByStudentId(request.getStudentId()).ifPresent(existing -> {
@@ -97,6 +101,7 @@ public final class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO update(StudentRegistrationRequestDTO request) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         if (request.getId() == null) {
             throw new IllegalArgumentException("Student id is required for an update.");
         }
@@ -120,6 +125,7 @@ public final class StudentServiceImpl implements StudentService {
 
     @Override
     public void changeStatus(Long studentId, String status) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student", studentId));
         student.setStatus(StudentStatus.valueOf(status));
@@ -144,6 +150,7 @@ public final class StudentServiceImpl implements StudentService {
 
     @Override
     public ImportResultDTO bulkImport(List<StudentImportRowDTO> rows) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         int successCount = 0;
         List<ImportResultDTO.RejectedRow> rejectedRows = new ArrayList<>();
 

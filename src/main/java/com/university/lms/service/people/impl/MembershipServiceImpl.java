@@ -12,6 +12,7 @@ import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.MembershipService;
 
@@ -21,18 +22,22 @@ public final class MembershipServiceImpl implements MembershipService {
     private final MembershipTypeRepository membershipTypeRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public MembershipServiceImpl(MembershipRepository membershipRepository,
                                   MembershipTypeRepository membershipTypeRepository,
-                                  AuditLogService auditLogService, AuthContext authContext) {
+                                  AuditLogService auditLogService, AuthContext authContext,
+                                  PermissionEvaluator permissionEvaluator) {
         this.membershipRepository = membershipRepository;
         this.membershipTypeRepository = membershipTypeRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public MembershipDTO assignOrRenew(HolderType holderType, Long holderId, Long membershipTypeId, int validityDays) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         MembershipType membershipType = membershipTypeRepository.findById(membershipTypeId)
                 .orElseThrow(() -> new ResourceNotFoundException("MembershipType", membershipTypeId));
 

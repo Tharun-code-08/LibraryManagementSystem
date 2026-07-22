@@ -25,6 +25,7 @@ import com.university.lms.dto.response.BackupDTO;
 import com.university.lms.entity.Backup;
 import com.university.lms.repository.BackupRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.admin.ProcessExecutor;
 import com.university.lms.service.auth.AuditLogService;
 
@@ -43,6 +44,9 @@ class BackupServiceImplTest {
     @Mock
     private ProcessExecutor processExecutor;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     @TempDir
     private Path backupDirectory;
 
@@ -51,7 +55,7 @@ class BackupServiceImplTest {
     @BeforeEach
     void setUp() {
         backupService = new BackupServiceImpl(backupRepository, userRepository, auditLogService, processExecutor,
-                "localhost", 3306, "library_management", "lms_app", "changeme", backupDirectory);
+                permissionEvaluator, "localhost", 3306, "library_management", "lms_app", "changeme", backupDirectory);
         lenient().when(userRepository.findById(100L)).thenReturn(Optional.empty());
         lenient().when(backupRepository.save(any(Backup.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }

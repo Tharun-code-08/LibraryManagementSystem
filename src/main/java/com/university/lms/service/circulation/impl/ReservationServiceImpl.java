@@ -17,6 +17,7 @@ import com.university.lms.repository.BookRepository;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.ReservationRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.ReservationService;
 
@@ -29,12 +30,14 @@ public final class ReservationServiceImpl implements ReservationService {
     private final ReservationQueueManager reservationQueueManager;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public ReservationServiceImpl(ReservationRepository reservationRepository, BookRepository bookRepository,
                                    MembershipRepository membershipRepository,
                                    MembershipHolderResolver membershipHolderResolver,
                                    ReservationQueueManager reservationQueueManager,
-                                   AuditLogService auditLogService, AuthContext authContext) {
+                                   AuditLogService auditLogService, AuthContext authContext,
+                                   PermissionEvaluator permissionEvaluator) {
         this.reservationRepository = reservationRepository;
         this.bookRepository = bookRepository;
         this.membershipRepository = membershipRepository;
@@ -42,10 +45,12 @@ public final class ReservationServiceImpl implements ReservationService {
         this.reservationQueueManager = reservationQueueManager;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public ReservationDTO reserve(ReservationRequestDTO request) {
+        permissionEvaluator.requirePermission("CIRCULATION_MANAGE");
         HolderRef holder = membershipHolderResolver.resolveByIdentifier(request.memberIdentifier())
                 .orElseThrow(() -> new NoActiveMembershipException(request.memberIdentifier()));
         Membership membership = membershipRepository.findActiveByHolder(holder.holderType(), holder.holderId())
@@ -63,6 +68,7 @@ public final class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void cancelReservation(Long reservationId) {
+        permissionEvaluator.requirePermission("CIRCULATION_MANAGE");
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", reservationId));
         reservation.setStatus(ReservationStatus.CANCELLED);

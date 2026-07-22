@@ -33,6 +33,7 @@ import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.ReservationRepository;
 import com.university.lms.repository.StudentRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.impl.ReservationServiceImpl;
 
@@ -57,6 +58,9 @@ class ReservationServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private ReservationServiceImpl reservationService;
 
     @BeforeEach
@@ -64,7 +68,7 @@ class ReservationServiceImplTest {
         MembershipHolderResolver holderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
         ReservationQueueManager queueManager = new ReservationQueueManager(reservationRepository, 3);
         reservationService = new ReservationServiceImpl(reservationRepository, bookRepository, membershipRepository,
-                holderResolver, queueManager, auditLogService, new AuthContext());
+                holderResolver, queueManager, auditLogService, new AuthContext(), permissionEvaluator);
     }
 
     @Test

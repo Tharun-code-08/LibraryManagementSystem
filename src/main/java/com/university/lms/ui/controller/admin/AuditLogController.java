@@ -24,6 +24,7 @@ import com.university.lms.dto.request.AuditLogSearchCriteria;
 import com.university.lms.dto.response.AuditLogEntryDTO;
 import com.university.lms.dto.response.ReportDTO;
 import com.university.lms.model.Page;
+import com.university.lms.ui.util.TablePlaceholders;
 import com.university.lms.util.ExportFormat;
 
 /** Admin screen: a filterable, paginated view over the append-only audit trail, with export. */
@@ -87,6 +88,7 @@ public final class AuditLogController implements Initializable {
         entityIdColumn.setCellValueFactory(new PropertyValueFactory<>("entityId"));
         createdAtColumn.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().createdAt())));
+        auditLogTable.setPlaceholder(TablePlaceholders.noResults("No audit log entries found."));
 
         loadPage(0);
     }
@@ -112,6 +114,8 @@ public final class AuditLogController implements Initializable {
 
     private void loadPage(int pageNumber) {
         errorLabel.setText("");
+        auditLogTable.setItems(FXCollections.observableArrayList());
+        auditLogTable.setPlaceholder(TablePlaceholders.loading());
         LocalDateTime from = fromDatePicker.getValue() != null ? fromDatePicker.getValue().atStartOfDay() : null;
         LocalDateTime to = toDatePicker.getValue() != null ? toDatePicker.getValue().atTime(23, 59, 59) : null;
         String entityType = entityTypeField.getText() == null || entityTypeField.getText().isBlank()
@@ -128,13 +132,17 @@ public final class AuditLogController implements Initializable {
         appContext.getAsyncExecutor().run(
                 () -> appContext.getAuditLogService().search(criteria),
                 this::onPageLoaded,
-                throwable -> errorLabel.setText("Unable to load the audit log right now."));
+                throwable -> {
+                    auditLogTable.setPlaceholder(TablePlaceholders.noResults("No audit log entries found."));
+                    errorLabel.setText("Unable to load the audit log right now.");
+                });
     }
 
     private void onPageLoaded(Page<AuditLogEntryDTO> page) {
         currentPage = page.getPageNumber();
         totalElements = page.getTotalElements();
         currentEntries = page.getContent();
+        auditLogTable.setPlaceholder(TablePlaceholders.noResults("No audit log entries found."));
         auditLogTable.setItems(FXCollections.observableArrayList(currentEntries));
         int totalPages = Math.max(page.getTotalPages(), 1);
         pageLabel.setText("Page " + (currentPage + 1) + " of " + totalPages + " (" + totalElements + " entries)");

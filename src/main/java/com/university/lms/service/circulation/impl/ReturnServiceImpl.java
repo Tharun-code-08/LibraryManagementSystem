@@ -26,6 +26,7 @@ import com.university.lms.repository.FineRepository;
 import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.ReturnService;
 import com.university.lms.service.notification.NotificationService;
@@ -42,13 +43,14 @@ public final class ReturnServiceImpl implements ReturnService {
     private final MembershipHolderResolver membershipHolderResolver;
     private final AuditLogService auditLogService;
     private final NotificationService notificationService;
+    private final PermissionEvaluator permissionEvaluator;
 
     public ReturnServiceImpl(IssueRepository issueRepository, BookCopyRepository bookCopyRepository,
                               ReturnRepository returnRepository, FineRepository fineRepository,
                               UserRepository userRepository, FineCalculationStrategy fineCalculationStrategy,
                               ReservationQueueManager reservationQueueManager,
                               MembershipHolderResolver membershipHolderResolver, AuditLogService auditLogService,
-                              NotificationService notificationService) {
+                              NotificationService notificationService, PermissionEvaluator permissionEvaluator) {
         this.issueRepository = issueRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.returnRepository = returnRepository;
@@ -59,10 +61,12 @@ public final class ReturnServiceImpl implements ReturnService {
         this.membershipHolderResolver = membershipHolderResolver;
         this.auditLogService = auditLogService;
         this.notificationService = notificationService;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public ReturnResultDTO returnBook(ReturnRequestDTO request, Long receivedByUserId) {
+        permissionEvaluator.requirePermission("CIRCULATION_MANAGE");
         BookCopy copy = bookCopyRepository.findByBarcode(request.copyBarcode())
                 .orElseThrow(() -> new NoOpenIssueException(request.copyBarcode()));
         Issue issue = issueRepository.findOpenByCopyId(copy.getId())

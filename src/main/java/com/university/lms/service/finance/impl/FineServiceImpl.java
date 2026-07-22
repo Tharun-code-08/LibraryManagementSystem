@@ -19,6 +19,7 @@ import com.university.lms.repository.FineRepository;
 import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.PaymentRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.finance.FineService;
 
@@ -30,16 +31,19 @@ public final class FineServiceImpl implements FineService {
     private final MembershipHolderResolver membershipHolderResolver;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public FineServiceImpl(FineRepository fineRepository, IssueRepository issueRepository,
                             PaymentRepository paymentRepository, MembershipHolderResolver membershipHolderResolver,
-                            AuditLogService auditLogService, AuthContext authContext) {
+                            AuditLogService auditLogService, AuthContext authContext,
+                            PermissionEvaluator permissionEvaluator) {
         this.fineRepository = fineRepository;
         this.issueRepository = issueRepository;
         this.paymentRepository = paymentRepository;
         this.membershipHolderResolver = membershipHolderResolver;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
@@ -56,6 +60,7 @@ public final class FineServiceImpl implements FineService {
 
     @Override
     public FineDTO createManualFine(ManualFineRequestDTO request) {
+        permissionEvaluator.requirePermission("FINE_MANAGE");
         if (request.amount() == null || request.amount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Manual fine amount must be positive.");
         }
@@ -70,6 +75,7 @@ public final class FineServiceImpl implements FineService {
 
     @Override
     public FineDTO waive(Long fineId, Long waivedByUserId) {
+        permissionEvaluator.requirePermission("FINE_MANAGE");
         Fine fine = fineRepository.findById(fineId).orElseThrow(() -> new ResourceNotFoundException("Fine", fineId));
         if (fine.getStatus() == FineStatus.PAID || fine.getStatus() == FineStatus.WAIVED) {
             throw new FineAlreadySettledException();

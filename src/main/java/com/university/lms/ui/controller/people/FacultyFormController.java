@@ -18,11 +18,14 @@ import com.university.lms.dto.request.FacultyRegistrationRequestDTO;
 import com.university.lms.dto.response.FacultyDTO;
 import com.university.lms.dto.response.MembershipTypeDTO;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.validation.ValidationResult;
+import com.university.lms.validation.impl.FacultyValidator;
 
 /** Add/Edit Faculty form. {@code AppContext.getNavigationParameter()} carries the faculty id to edit, if any. */
 public final class FacultyFormController implements Initializable {
 
     private final AppContext appContext;
+    private final FacultyValidator validator = new FacultyValidator();
     private Long editingFacultyId;
 
     @FXML
@@ -129,7 +132,6 @@ public final class FacultyFormController implements Initializable {
     @FXML
     private void onSave() {
         messageLabel.setText("");
-        saveButton.setDisable(true);
 
         MembershipTypeDTO membershipType = membershipTypeCombo.getValue();
 
@@ -146,6 +148,13 @@ public final class FacultyFormController implements Initializable {
                 .membershipTypeId(membershipType != null ? membershipType.id() : null)
                 .build();
 
+        ValidationResult validation = validator.validate(request);
+        if (!validation.isValid()) {
+            messageLabel.setText(String.join(" ", validation.getErrors()));
+            return;
+        }
+
+        saveButton.setDisable(true);
         appContext.getAsyncExecutor().run(
                 () -> editingFacultyId == null ? appContext.getFacultyService().register(request)
                         : appContext.getFacultyService().update(request),

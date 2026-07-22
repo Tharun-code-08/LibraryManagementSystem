@@ -205,5 +205,52 @@ OS's artifact:
   end-to-end in this sandbox, producing a real runnable Linux app-image; Windows/macOS installers
   need the same profile run on those OSes, since `jpackage` never cross-compiles.
 
+- **Phase 13 — Authorization & Security Hardening**: complete. `PermissionEvaluator` existed
+  since Phase 1 but nothing ever called it — every state-mutating service method (create/update/
+  delete/status-change/approve/waive/collect/etc. across catalog, people, circulation, finance,
+  inventory, admin, and reports) now opens with a `requirePermission(...)` check against the
+  matching permission code (`BOOK_MANAGE`, `PEOPLE_MANAGE`, `CIRCULATION_MANAGE`, `FINE_MANAGE`,
+  `INVENTORY_MANAGE`, `PROCUREMENT_MANAGE`, `REPORT_VIEW`, `USER_MANAGE`, `SETTINGS_MANAGE`,
+  `AUDIT_LOG_VIEW`); read-only browsing methods stay open, matching STUDENT/FACULTY/GUEST's
+  `BOOK_VIEW`-only grant. This closes a self-escalation hole where any authenticated user could
+  call `assignRoles` to grant themselves ADMIN. Two internal-only paths
+  (`ReservationService.expireStaleReservations`, the new `BackupService.runScheduledBackup`) stay
+  ungated since `AppContext`'s own scheduled sweep calls them with no logged-in user in context.
+  Fixed two check-then-act concurrency races: `IssueServiceImpl.issueBook()` now catches the
+  `uk_issues_open_copy` constraint violation from a losing concurrent issue and reports it as
+  `BookNotAvailableException` instead of double-issuing a copy; a new `V10` migration mirrors that
+  same generated-column-plus-unique-index pattern for reservations
+  (`uk_reservations_ready_book`), so `ReservationQueueManager.promoteNextWaiting()` can no longer
+  let two concurrent returns both promote a reservation for the same book. `ConfigurationManager`
+  gained `requireDb(key)` — missing/blank required DB settings now fail fast at boot with a
+  descriptive message instead of an obscure NPE inside HikariCP; `database.properties` no longer
+  ships a working default password. `SessionManager` now persists only the SHA-256 hash of each
+  session token, so a database leak alone can't be replayed as a live session. Added direct unit
+  tests for `MembershipHolderResolver` (previously untested despite being on the circulation-desk
+  lookup path) and grace-period boundary cases (exactly-on vs. one-day-past) for
+  `OverdueFineStrategy`.
+
+- **Phase 14 — UI/UX Polish & Test Depth**: complete. Every one of the 14 `TableView`-based
+  screens (catalog, people, circulation-adjacent finance, inventory, admin, reports) now shows a
+  spinner while its async load is in flight and a descriptive "no results" placeholder when a
+  search/filter returns zero rows, via a new `ui.util.TablePlaceholders` set through
+  `TableView.setPlaceholder(...)` — no FXML changes needed, since a table already renders
+  whatever placeholder is set whenever it has zero rows. The Book/Student/Faculty add-edit forms
+  now run the existing `BookValidator`/`StudentValidator`/`FacultyValidator` client-side before
+  dispatching to the service layer (they existed only in the service layer before, so errors
+  surfaced only after a round trip) and guard previously-unguarded `NumberFormatException` paths
+  (book cost, student year/semester) with a friendly message. Standard CRUD forms (Book/Student/
+  Faculty add-edit, Supplier/MembershipType inline-add, purchase-order line-item entry,
+  manual-fine entry, catalog/student search bars) now submit on Enter from any text field,
+  matching the pattern the circulation Issue/Return screens already used. Primary action buttons
+  (Save, Cancel, Search, Create, Add, Remove, Delete) gained keyboard mnemonics — previously
+  Ctrl+K global search was the only accelerator in the app. Added TestFX (`testfx-core`/
+  `testfx-junit5` 4.0.18, the JavaFX-21-compatible line) as the project's first UI test
+  framework — there's no maintained Monocle build for JavaFX 21, so tests render through a real
+  or virtual (Xvfb in headless CI) display; surefire gets a software-prism `argLine` so that
+  works without GPU/GL support. `TablePlaceholdersUiTest` is the first UI test, verified
+  end-to-end with `xvfb-run mvn test` in this sandbox.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) — all twelve phases
-of the roadmap are now complete.
+of the roadmap are now complete; Phases 13-14 above are subsequent hardening passes beyond the
+original roadmap.

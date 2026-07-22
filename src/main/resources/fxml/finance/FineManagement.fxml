@@ -29,10 +29,10 @@
         <ComboBox fx:id="statusFilter" promptText="Status"/>
         <Button text="Filter" onAction="#onFilter"/>
         <HBox HBox.hgrow="ALWAYS"/>
-        <TextField fx:id="manualIssueIdField" promptText="Issue ID" prefWidth="90"/>
-        <TextField fx:id="manualAmountField" promptText="Amount" prefWidth="90"/>
-        <TextField fx:id="manualReasonField" promptText="Reason" prefWidth="160"/>
-        <Button text="+ Add Manual Fine" onAction="#onAddManualFine" styleClass="primary-button"/>
+        <TextField fx:id="manualIssueIdField" promptText="Issue ID" prefWidth="90" onAction="#onAddManualFine"/>
+        <TextField fx:id="manualAmountField" promptText="Amount" prefWidth="90" onAction="#onAddManualFine"/>
+        <TextField fx:id="manualReasonField" promptText="Reason" prefWidth="160" onAction="#onAddManualFine"/>
+        <Button text="+ Add _Manual Fine" mnemonicParsing="true" onAction="#onAddManualFine" styleClass="primary-button"/>
     </HBox>
 
     <Label fx:id="errorLabel" styleClass="error-label"/>

@@ -23,6 +23,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.impl.MembershipTypeServiceImpl;
 
@@ -35,11 +36,14 @@ class MembershipTypeServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private MembershipTypeServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new MembershipTypeServiceImpl(membershipTypeRepository, auditLogService, new AuthContext());
+        service = new MembershipTypeServiceImpl(membershipTypeRepository, auditLogService, new AuthContext(), permissionEvaluator);
         lenient().when(membershipTypeRepository.save(any(MembershipType.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
     }

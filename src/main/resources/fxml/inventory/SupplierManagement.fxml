@@ -39,12 +39,12 @@
             <Insets top="20" right="20" bottom="20" left="20"/>
         </padding>
         <Label text="Add Supplier" styleClass="status-label"/>
-        <TextField fx:id="nameField" promptText="Name"/>
-        <TextField fx:id="contactField" promptText="Contact Person"/>
-        <TextField fx:id="phoneField" promptText="Phone"/>
-        <TextField fx:id="emailField" promptText="Email"/>
-        <TextField fx:id="addressField" promptText="Address"/>
-        <Button text="Save" onAction="#onSave" styleClass="primary-button" maxWidth="Infinity"/>
+        <TextField fx:id="nameField" promptText="Name" onAction="#onSave"/>
+        <TextField fx:id="contactField" promptText="Contact Person" onAction="#onSave"/>
+        <TextField fx:id="phoneField" promptText="Phone" onAction="#onSave"/>
+        <TextField fx:id="emailField" promptText="Email" onAction="#onSave"/>
+        <TextField fx:id="addressField" promptText="Address" onAction="#onSave"/>
+        <Button text="_Save" mnemonicParsing="true" onAction="#onSave" styleClass="primary-button" maxWidth="Infinity"/>
         <Label fx:id="messageLabel" styleClass="error-label" wrapText="true"/>
     </VBox>
 </HBox>

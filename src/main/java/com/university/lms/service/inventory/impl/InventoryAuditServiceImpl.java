@@ -23,6 +23,7 @@ import com.university.lms.repository.InventoryAuditItemRepository;
 import com.university.lms.repository.InventoryAuditRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.InventoryAuditService;
 
@@ -35,12 +36,13 @@ public final class InventoryAuditServiceImpl implements InventoryAuditService {
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public InventoryAuditServiceImpl(InventoryAuditRepository inventoryAuditRepository,
                                       InventoryAuditItemRepository inventoryAuditItemRepository,
                                       BookCopyRepository bookCopyRepository, BranchRepository branchRepository,
                                       UserRepository userRepository, AuditLogService auditLogService,
-                                      AuthContext authContext) {
+                                      AuthContext authContext, PermissionEvaluator permissionEvaluator) {
         this.inventoryAuditRepository = inventoryAuditRepository;
         this.inventoryAuditItemRepository = inventoryAuditItemRepository;
         this.bookCopyRepository = bookCopyRepository;
@@ -48,10 +50,12 @@ public final class InventoryAuditServiceImpl implements InventoryAuditService {
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public InventoryAuditDTO startAudit(Long branchId, Long conductedByUserId) {
+        permissionEvaluator.requirePermission("INVENTORY_MANAGE");
         Branch branch = branchRepository.findById(branchId)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch", branchId));
         User conductedBy = userRepository.findById(conductedByUserId)
@@ -65,6 +69,7 @@ public final class InventoryAuditServiceImpl implements InventoryAuditService {
 
     @Override
     public InventoryAuditDTO recordScan(InventoryScanRequestDTO request) {
+        permissionEvaluator.requirePermission("INVENTORY_MANAGE");
         InventoryAudit audit = inventoryAuditRepository.findById(request.auditId())
                 .orElseThrow(() -> new ResourceNotFoundException("InventoryAudit", request.auditId()));
         if (audit.getStatus() != InventoryAuditStatus.IN_PROGRESS) {
@@ -91,6 +96,7 @@ public final class InventoryAuditServiceImpl implements InventoryAuditService {
 
     @Override
     public InventoryAuditDTO completeAudit(Long auditId) {
+        permissionEvaluator.requirePermission("INVENTORY_MANAGE");
         InventoryAudit audit = inventoryAuditRepository.findById(auditId)
                 .orElseThrow(() -> new ResourceNotFoundException("InventoryAudit", auditId));
         if (audit.getStatus() != InventoryAuditStatus.IN_PROGRESS) {

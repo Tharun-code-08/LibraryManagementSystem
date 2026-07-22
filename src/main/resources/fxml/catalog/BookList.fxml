@@ -26,9 +26,9 @@
     </HBox>
 
     <HBox alignment="CENTER_LEFT" spacing="10">
-        <TextField fx:id="searchField" promptText="Search by title, ISBN, or author" HBox.hgrow="ALWAYS"/>
+        <TextField fx:id="searchField" promptText="Search by title, ISBN, or author" HBox.hgrow="ALWAYS" onAction="#onSearch"/>
         <ComboBox fx:id="statusFilter" promptText="Status"/>
-        <Button text="Search" onAction="#onSearch"/>
+        <Button text="_Search" mnemonicParsing="true" onAction="#onSearch"/>
         <HBox HBox.hgrow="ALWAYS"/>
         <Button text="Manage Categories" onAction="#onManageCategories"/>
         <Button text="Bulk Import" onAction="#onBulkImport"/>

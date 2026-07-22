@@ -23,6 +23,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.CategoryRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.catalog.impl.CategoryServiceImpl;
 
@@ -35,11 +36,14 @@ class CategoryServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private CategoryServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new CategoryServiceImpl(categoryRepository, auditLogService, new AuthContext());
+        service = new CategoryServiceImpl(categoryRepository, auditLogService, new AuthContext(), permissionEvaluator);
         lenient().when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 

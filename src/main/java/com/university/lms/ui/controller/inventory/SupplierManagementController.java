@@ -16,6 +16,7 @@ import com.university.lms.config.AppContext;
 import com.university.lms.dto.request.SupplierRequestDTO;
 import com.university.lms.dto.response.SupplierDTO;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Supplier reference-data management: a simple list + add form. */
 public final class SupplierManagementController implements Initializable {
@@ -65,14 +66,23 @@ public final class SupplierManagementController implements Initializable {
         contactColumn.setCellValueFactory(new PropertyValueFactory<>("contactPerson"));
         phoneColumn.setCellValueFactory(new PropertyValueFactory<>("phone"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+        supplierTable.setPlaceholder(TablePlaceholders.noResults("No suppliers found."));
         loadSuppliers();
     }
 
     private void loadSuppliers() {
+        supplierTable.setItems(FXCollections.observableArrayList());
+        supplierTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getSupplierService().listAll(),
-                list -> supplierTable.setItems(FXCollections.observableArrayList(list)),
-                throwable -> messageLabel.setText("Unable to load suppliers."));
+                list -> {
+                    supplierTable.setPlaceholder(TablePlaceholders.noResults("No suppliers found."));
+                    supplierTable.setItems(FXCollections.observableArrayList(list));
+                },
+                throwable -> {
+                    supplierTable.setPlaceholder(TablePlaceholders.noResults("No suppliers found."));
+                    messageLabel.setText("Unable to load suppliers.");
+                });
     }
 
     @FXML

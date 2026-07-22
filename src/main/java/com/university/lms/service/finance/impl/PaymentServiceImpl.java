@@ -18,6 +18,7 @@ import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.FineRepository;
 import com.university.lms.repository.PaymentRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.finance.PaymentService;
 import com.university.lms.util.ReceiptGenerator;
@@ -30,20 +31,24 @@ public final class PaymentServiceImpl implements PaymentService {
     private final MembershipHolderResolver membershipHolderResolver;
     private final ReceiptGenerator receiptGenerator;
     private final AuditLogService auditLogService;
+    private final PermissionEvaluator permissionEvaluator;
 
     public PaymentServiceImpl(FineRepository fineRepository, PaymentRepository paymentRepository,
                                UserRepository userRepository, MembershipHolderResolver membershipHolderResolver,
-                               ReceiptGenerator receiptGenerator, AuditLogService auditLogService) {
+                               ReceiptGenerator receiptGenerator, AuditLogService auditLogService,
+                               PermissionEvaluator permissionEvaluator) {
         this.fineRepository = fineRepository;
         this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
         this.membershipHolderResolver = membershipHolderResolver;
         this.receiptGenerator = receiptGenerator;
         this.auditLogService = auditLogService;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public PaymentDTO collectPayment(PaymentRequestDTO request, Long receivedByUserId) {
+        permissionEvaluator.requirePermission("FINE_MANAGE");
         Fine fine = fineRepository.findById(request.fineId())
                 .orElseThrow(() -> new ResourceNotFoundException("Fine", request.fineId()));
         if (fine.getStatus() == FineStatus.PAID || fine.getStatus() == FineStatus.WAIVED) {

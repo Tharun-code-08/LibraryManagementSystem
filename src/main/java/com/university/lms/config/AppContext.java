@@ -344,41 +344,41 @@ public final class AppContext {
             return thread;
         });
 
-        this.auditLogService = new AuditLogServiceImpl(auditLogRepository);
+        this.auditLogService = new AuditLogServiceImpl(auditLogRepository, permissionEvaluator);
         this.authService = new AuthServiceImpl(
                 userRepository, passwordResetTokenRepository, sessionManager,
                 passwordEncoder, authContext, auditLogService);
-        this.authorService = new AuthorServiceImpl(authorRepository, auditLogService, authContext);
-        this.publisherService = new PublisherServiceImpl(publisherRepository, auditLogService, authContext);
-        this.categoryService = new CategoryServiceImpl(categoryRepository, auditLogService, authContext);
+        this.authorService = new AuthorServiceImpl(authorRepository, auditLogService, authContext, permissionEvaluator);
+        this.publisherService = new PublisherServiceImpl(publisherRepository, auditLogService, authContext, permissionEvaluator);
+        this.categoryService = new CategoryServiceImpl(categoryRepository, auditLogService, authContext, permissionEvaluator);
         this.bookService = new BookServiceImpl(
                 bookRepository, bookCopyRepository, authorRepository, publisherRepository,
                 categoryRepository, tagRepository, branchRepository, barcodeGenerator,
-                qrCodeGenerator, auditLogService, authContext);
+                qrCodeGenerator, auditLogService, authContext, permissionEvaluator);
 
         int defaultMembershipValidityDays = Integer.parseInt(configurationManager.app("app.membership.default-validity-days", "365"));
-        this.membershipTypeService = new MembershipTypeServiceImpl(membershipTypeRepository, auditLogService, authContext);
-        this.membershipService = new MembershipServiceImpl(membershipRepository, membershipTypeRepository, auditLogService, authContext);
+        this.membershipTypeService = new MembershipTypeServiceImpl(membershipTypeRepository, auditLogService, authContext, permissionEvaluator);
+        this.membershipService = new MembershipServiceImpl(membershipRepository, membershipTypeRepository, auditLogService, authContext, permissionEvaluator);
         this.studentService = new StudentServiceImpl(
                 studentRepository, userRepository, roleRepository, branchRepository, passwordEncoder,
-                membershipService, auditLogService, authContext, defaultMembershipValidityDays);
+                membershipService, auditLogService, authContext, permissionEvaluator, defaultMembershipValidityDays);
         this.facultyService = new FacultyServiceImpl(
                 facultyRepository, userRepository, roleRepository, passwordEncoder,
-                membershipService, auditLogService, authContext, defaultMembershipValidityDays);
+                membershipService, auditLogService, authContext, permissionEvaluator, defaultMembershipValidityDays);
 
         this.notificationService = new NotificationServiceImpl(
                 notificationRepository, issueRepository, membershipHolderResolver, notificationFactory);
 
         this.issueService = new IssueServiceImpl(
                 issueRepository, bookCopyRepository, membershipRepository, userRepository,
-                membershipHolderResolver, borrowLimitValidator, auditLogService, notificationService);
+                membershipHolderResolver, borrowLimitValidator, auditLogService, notificationService, permissionEvaluator);
         this.returnService = new ReturnServiceImpl(
                 issueRepository, bookCopyRepository, returnRepository, fineRepository, userRepository,
                 fineCalculationStrategy, reservationQueueManager, membershipHolderResolver, auditLogService,
-                notificationService);
+                notificationService, permissionEvaluator);
         this.reservationService = new ReservationServiceImpl(
                 reservationRepository, bookRepository, membershipRepository, membershipHolderResolver,
-                reservationQueueManager, auditLogService, authContext);
+                reservationQueueManager, auditLogService, authContext, permissionEvaluator);
 
         this.scheduledExecutorService.scheduleAtFixedRate(
                 reservationService::expireStaleReservations, 1, 60, TimeUnit.MINUTES);
@@ -389,40 +389,40 @@ public final class AppContext {
                 notificationService::runOverdueReminderSweep, 5, overdueSweepIntervalHours * 60L, TimeUnit.MINUTES);
 
         this.fineService = new FineServiceImpl(
-                fineRepository, issueRepository, paymentRepository, membershipHolderResolver, auditLogService, authContext);
+                fineRepository, issueRepository, paymentRepository, membershipHolderResolver, auditLogService, authContext, permissionEvaluator);
         this.paymentService = new PaymentServiceImpl(
                 fineRepository, paymentRepository, userRepository, membershipHolderResolver,
-                receiptGenerator, auditLogService);
+                receiptGenerator, auditLogService, permissionEvaluator);
 
-        this.supplierService = new SupplierServiceImpl(supplierRepository, auditLogService, authContext);
+        this.supplierService = new SupplierServiceImpl(supplierRepository, auditLogService, authContext, permissionEvaluator);
         this.purchaseOrderService = new PurchaseOrderServiceImpl(
-                purchaseOrderRepository, supplierRepository, bookRepository, userRepository, auditLogService, authContext);
-        this.invoiceService = new InvoiceServiceImpl(invoiceRepository, purchaseOrderRepository, auditLogService, authContext);
+                purchaseOrderRepository, supplierRepository, bookRepository, userRepository, auditLogService, authContext, permissionEvaluator);
+        this.invoiceService = new InvoiceServiceImpl(invoiceRepository, purchaseOrderRepository, auditLogService, authContext, permissionEvaluator);
         this.inventoryAuditService = new InventoryAuditServiceImpl(
                 inventoryAuditRepository, inventoryAuditItemRepository, bookCopyRepository, branchRepository,
-                userRepository, auditLogService, authContext);
+                userRepository, auditLogService, authContext, permissionEvaluator);
 
         this.dashboardService = new DashboardServiceImpl(dashboardRepository, auditLogRepository);
         this.reportService = new ReportServiceImpl(
                 bookService, studentService, facultyService, fineService, issueRepository, returnRepository,
-                bookCopyRepository, dashboardService, membershipHolderResolver, reportFactory);
+                bookCopyRepository, dashboardService, membershipHolderResolver, reportFactory, permissionEvaluator);
 
-        this.userManagementService = new UserManagementServiceImpl(userRepository, roleRepository, auditLogService);
-        this.roleService = new RoleServiceImpl(roleRepository, permissionRepository, auditLogService);
-        this.settingsService = new SettingsServiceImpl(settingRepository, userRepository, auditLogService);
+        this.userManagementService = new UserManagementServiceImpl(userRepository, roleRepository, auditLogService, permissionEvaluator);
+        this.roleService = new RoleServiceImpl(roleRepository, permissionRepository, auditLogService, permissionEvaluator);
+        this.settingsService = new SettingsServiceImpl(settingRepository, userRepository, auditLogService, permissionEvaluator);
         this.globalSearchService = new GlobalSearchServiceImpl(bookService, authorService, studentService, facultyService);
 
         JdbcUrlParser.ConnectionInfo dbConnectionInfo = JdbcUrlParser.parse(configurationManager.db("db.jdbc-url"));
         Path backupDirectory = Path.of(configurationManager.app("app.backup.directory", "./backups"));
         this.backupService = new BackupServiceImpl(
-                backupRepository, userRepository, auditLogService, processExecutor,
+                backupRepository, userRepository, auditLogService, processExecutor, permissionEvaluator,
                 dbConnectionInfo.host(), dbConnectionInfo.port(), dbConnectionInfo.database(),
                 configurationManager.db("db.username"), configurationManager.db("db.password"), backupDirectory);
 
         boolean backupAutoEnabled = Boolean.parseBoolean(configurationManager.app("app.backup.auto-enabled", "true"));
         if (backupAutoEnabled) {
             this.scheduledExecutorService.scheduleAtFixedRate(
-                    () -> backupService.runBackup(null), 10, 24 * 60L, TimeUnit.MINUTES);
+                    () -> backupService.runScheduledBackup(), 10, 24 * 60L, TimeUnit.MINUTES);
         }
     }
 

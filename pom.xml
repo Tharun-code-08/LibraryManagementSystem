@@ -33,6 +33,7 @@
         <mockito.version>5.14.2</mockito.version>
         <archunit.version>1.3.0</archunit.version>
         <testcontainers.version>1.20.4</testcontainers.version>
+        <testfx.version>4.0.18</testfx.version>
         <main.class>com.university.lms.LibraryManagementApplication</main.class>
     </properties>
 
@@ -185,6 +186,18 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-core</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit5</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -202,6 +215,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
+                <configuration>
+                    <!-- TestFX needs a real X display; there's no maintained Monocle build for
+                         JavaFX 21, so run these tests under a virtual framebuffer instead:
+                         `xvfb-run mvn test` in headless CI. Software prism rendering avoids
+                         requiring GPU/GL support on the virtual display. -->
+                    <argLine>-Dprism.order=sw -Dprism.text=t2k</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.openjfx</groupId>

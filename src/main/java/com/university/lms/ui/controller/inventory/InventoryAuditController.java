@@ -21,6 +21,7 @@ import com.university.lms.dto.response.InventoryAuditDTO;
 import com.university.lms.dto.response.InventoryAuditItemDTO;
 import com.university.lms.entity.Branch;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Shelf verification: start an audit, scan copies against expected status, then complete it. */
 public final class InventoryAuditController implements Initializable {
@@ -98,6 +99,7 @@ public final class InventoryAuditController implements Initializable {
         });
 
         setScanControlsDisabled(true);
+        itemsTable.setPlaceholder(TablePlaceholders.noResults("No items scanned yet."));
 
         appContext.getAsyncExecutor().run(
                 () -> appContext.getBranchRepository().findAll(),

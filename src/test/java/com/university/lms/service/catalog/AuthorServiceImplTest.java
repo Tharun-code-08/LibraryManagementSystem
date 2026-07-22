@@ -22,6 +22,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.AuthorRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.catalog.impl.AuthorServiceImpl;
 
@@ -34,11 +35,14 @@ class AuthorServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private AuthorServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new AuthorServiceImpl(authorRepository, auditLogService, new AuthContext());
+        service = new AuthorServiceImpl(authorRepository, auditLogService, new AuthContext(), permissionEvaluator);
         lenient().when(authorRepository.save(any(Author.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 

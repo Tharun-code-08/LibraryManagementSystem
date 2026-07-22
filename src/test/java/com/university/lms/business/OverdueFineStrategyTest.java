@@ -48,6 +48,24 @@ class OverdueFineStrategyTest {
     }
 
     @Test
+    void returnsZeroWhenLateDaysExactlyEqualGracePeriod() {
+        // 3 days late, 3-day grace period -> daysLate == 0, no fine yet.
+        LocalDateTime dueDate = LocalDateTime.now().minusDays(3);
+        Issue issue = buildIssue(dueDate, BigDecimal.valueOf(50), 3);
+        BigDecimal fine = strategy.calculate(issue, LocalDateTime.now(), ReturnCondition.GOOD);
+        assertEquals(BigDecimal.ZERO, fine);
+    }
+
+    @Test
+    void chargesOneDayFineWhenOneDayPastGracePeriod() {
+        // 4 days late, 3-day grace period -> 1 chargeable day * 5.00/day = 5.00
+        LocalDateTime dueDate = LocalDateTime.now().minusDays(4);
+        Issue issue = buildIssue(dueDate, BigDecimal.valueOf(50), 3);
+        BigDecimal fine = strategy.calculate(issue, LocalDateTime.now(), ReturnCondition.GOOD);
+        assertEquals(new BigDecimal("5.00"), fine.setScale(2));
+    }
+
+    @Test
     void chargesFullBookCostWhenLost() {
         Issue issue = buildIssue(LocalDateTime.now().plusDays(5), BigDecimal.valueOf(50), 1);
         BigDecimal fine = strategy.calculate(issue, LocalDateTime.now(), ReturnCondition.LOST);

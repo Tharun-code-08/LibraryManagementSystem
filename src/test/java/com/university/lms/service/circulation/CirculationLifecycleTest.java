@@ -48,6 +48,7 @@ import com.university.lms.repository.ReservationRepository;
 import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.StudentRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.impl.IssueServiceImpl;
 import com.university.lms.service.circulation.impl.ReturnServiceImpl;
@@ -95,6 +96,9 @@ class CirculationLifecycleTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private IssueServiceImpl issueService;
     private ReturnServiceImpl returnService;
 
@@ -110,13 +114,13 @@ class CirculationLifecycleTest {
         MembershipHolderResolver holderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
         BorrowLimitValidator borrowLimitValidator = new BorrowLimitValidator();
         issueService = new IssueServiceImpl(issueRepository, bookCopyRepository, membershipRepository,
-                userRepository, holderResolver, borrowLimitValidator, auditLogService, notificationService);
+                userRepository, holderResolver, borrowLimitValidator, auditLogService, notificationService, permissionEvaluator);
 
         OverdueFineStrategy fineStrategy = new OverdueFineStrategy();
         ReservationQueueManager queueManager = new ReservationQueueManager(reservationRepository, 3);
         returnService = new ReturnServiceImpl(issueRepository, bookCopyRepository, returnRepository,
                 fineRepository, userRepository, fineStrategy, queueManager, holderResolver, auditLogService,
-                notificationService);
+                notificationService, permissionEvaluator);
 
         membershipType = new MembershipType("STUDENT_STANDARD", 3, 14, BigDecimal.valueOf(5), 1, 2);
         User studentUser = new User("jdoe", "jdoe@university.edu", "hash", null);

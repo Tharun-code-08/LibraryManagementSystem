@@ -20,6 +20,7 @@ import com.university.lms.dto.request.BookSearchCriteria;
 import com.university.lms.dto.response.BookDTO;
 import com.university.lms.exception.BusinessException;
 import com.university.lms.model.Page;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Book catalog list: keyword search, category/status filters, and pagination. */
 public final class BookListController implements Initializable {
@@ -86,6 +87,8 @@ public final class BookListController implements Initializable {
         statusFilter.setItems(FXCollections.observableArrayList("All", "AVAILABLE", "ISSUED", "RESERVED", "MAINTENANCE", "LOST"));
         statusFilter.getSelectionModel().selectFirst();
 
+        bookTable.setPlaceholder(TablePlaceholders.noResults("No books found."));
+
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button editButton = new Button("Edit");
 
@@ -148,6 +151,8 @@ public final class BookListController implements Initializable {
 
     private void loadPage(int pageNumber) {
         errorLabel.setText("");
+        bookTable.setItems(FXCollections.observableArrayList());
+        bookTable.setPlaceholder(TablePlaceholders.loading());
         String status = statusFilter.getValue();
         BookSearchCriteria criteria = BookSearchCriteria.builder()
                 .keyword(searchField.getText())
@@ -159,13 +164,17 @@ public final class BookListController implements Initializable {
         appContext.getAsyncExecutor().run(
                 () -> appContext.getBookService().search(criteria),
                 this::onPageLoaded,
-                throwable -> errorLabel.setText(throwable instanceof BusinessException
-                        ? throwable.getMessage() : "Unable to load books right now."));
+                throwable -> {
+                    bookTable.setPlaceholder(TablePlaceholders.noResults("No books found."));
+                    errorLabel.setText(throwable instanceof BusinessException
+                            ? throwable.getMessage() : "Unable to load books right now.");
+                });
     }
 
     private void onPageLoaded(Page<BookDTO> page) {
         currentPage = page.getPageNumber();
         totalElements = page.getTotalElements();
+        bookTable.setPlaceholder(TablePlaceholders.noResults("No books found."));
         bookTable.setItems(FXCollections.observableArrayList(page.getContent()));
         int totalPages = Math.max(page.getTotalPages(), 1);
         pageLabel.setText("Page " + (currentPage + 1) + " of " + totalPages + " (" + totalElements + " books)");

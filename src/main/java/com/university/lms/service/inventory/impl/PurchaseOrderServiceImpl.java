@@ -23,6 +23,7 @@ import com.university.lms.repository.PurchaseOrderRepository;
 import com.university.lms.repository.SupplierRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.PurchaseOrderService;
 
@@ -34,20 +35,24 @@ public final class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository, SupplierRepository supplierRepository,
                                      BookRepository bookRepository, UserRepository userRepository,
-                                     AuditLogService auditLogService, AuthContext authContext) {
+                                     AuditLogService auditLogService, AuthContext authContext,
+                                     PermissionEvaluator permissionEvaluator) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.supplierRepository = supplierRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public PurchaseOrderDTO create(PurchaseOrderRequestDTO request, Long orderedByUserId) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         if (request.items() == null || request.items().isEmpty()) {
             throw new IllegalArgumentException("A purchase order must have at least one line item.");
         }
@@ -72,6 +77,7 @@ public final class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public PurchaseOrderDTO submitForApproval(Long id) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         PurchaseOrder purchaseOrder = requireStatus(id, PurchaseOrderStatus.DRAFT, "submitted for approval");
         purchaseOrder.setStatus(PurchaseOrderStatus.PENDING_APPROVAL);
         PurchaseOrder saved = purchaseOrderRepository.save(purchaseOrder);
@@ -81,6 +87,7 @@ public final class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public PurchaseOrderDTO approve(Long id, Long approvedByUserId) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         PurchaseOrder purchaseOrder = requireStatus(id, PurchaseOrderStatus.PENDING_APPROVAL, "approved");
         User approvedBy = userRepository.findById(approvedByUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", approvedByUserId));
@@ -93,6 +100,7 @@ public final class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public PurchaseOrderDTO cancel(Long id) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseOrder", id));
         if (purchaseOrder.getStatus() == PurchaseOrderStatus.RECEIVED) {
@@ -106,6 +114,7 @@ public final class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     @Override
     public PurchaseOrderDTO markReceived(Long id) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         PurchaseOrder purchaseOrder = requireStatus(id, PurchaseOrderStatus.APPROVED, "marked as received");
         purchaseOrder.setStatus(PurchaseOrderStatus.RECEIVED);
         PurchaseOrder saved = purchaseOrderRepository.save(purchaseOrder);
