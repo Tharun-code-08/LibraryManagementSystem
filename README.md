@@ -205,5 +205,31 @@ OS's artifact:
   end-to-end in this sandbox, producing a real runnable Linux app-image; Windows/macOS installers
   need the same profile run on those OSes, since `jpackage` never cross-compiles.
 
+- **Phase 13 — Authorization & Security Hardening**: complete. `PermissionEvaluator` existed
+  since Phase 1 but nothing ever called it — every state-mutating service method (create/update/
+  delete/status-change/approve/waive/collect/etc. across catalog, people, circulation, finance,
+  inventory, admin, and reports) now opens with a `requirePermission(...)` check against the
+  matching permission code (`BOOK_MANAGE`, `PEOPLE_MANAGE`, `CIRCULATION_MANAGE`, `FINE_MANAGE`,
+  `INVENTORY_MANAGE`, `PROCUREMENT_MANAGE`, `REPORT_VIEW`, `USER_MANAGE`, `SETTINGS_MANAGE`,
+  `AUDIT_LOG_VIEW`); read-only browsing methods stay open, matching STUDENT/FACULTY/GUEST's
+  `BOOK_VIEW`-only grant. This closes a self-escalation hole where any authenticated user could
+  call `assignRoles` to grant themselves ADMIN. Two internal-only paths
+  (`ReservationService.expireStaleReservations`, the new `BackupService.runScheduledBackup`) stay
+  ungated since `AppContext`'s own scheduled sweep calls them with no logged-in user in context.
+  Fixed two check-then-act concurrency races: `IssueServiceImpl.issueBook()` now catches the
+  `uk_issues_open_copy` constraint violation from a losing concurrent issue and reports it as
+  `BookNotAvailableException` instead of double-issuing a copy; a new `V10` migration mirrors that
+  same generated-column-plus-unique-index pattern for reservations
+  (`uk_reservations_ready_book`), so `ReservationQueueManager.promoteNextWaiting()` can no longer
+  let two concurrent returns both promote a reservation for the same book. `ConfigurationManager`
+  gained `requireDb(key)` — missing/blank required DB settings now fail fast at boot with a
+  descriptive message instead of an obscure NPE inside HikariCP; `database.properties` no longer
+  ships a working default password. `SessionManager` now persists only the SHA-256 hash of each
+  session token, so a database leak alone can't be replayed as a live session. Added direct unit
+  tests for `MembershipHolderResolver` (previously untested despite being on the circulation-desk
+  lookup path) and grace-period boundary cases (exactly-on vs. one-day-past) for
+  `OverdueFineStrategy`.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) — all twelve phases
-of the roadmap are now complete.
+of the roadmap are now complete; Phase 13 above is a subsequent hardening pass beyond the
+original roadmap.
