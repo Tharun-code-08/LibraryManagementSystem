@@ -1111,8 +1111,8 @@
           <!-- Other platforms -->
           <div class="other-platforms">
             <span class="other-label">Other platforms:</span>
-            <a id="osWin" href="/download/windows" download="LibraryManagementSystem-Setup.exe"
-               class="btn-os-sm">🪟 Windows .exe</a>
+            <a id="osWin" href="/download/windows" download="LibraryManagementSystem-Windows.zip"
+               class="btn-os-sm">🪟 Windows .zip</a>
             <a id="osMac" href="/download/macos" download="LibraryManagementSystem.dmg"
                class="btn-os-sm">🍎 macOS .dmg</a>
             <a id="osLin" href="/download/linux" download="LibraryManagementSystem.deb"
@@ -1153,16 +1153,16 @@
     const OS_MAP = {
       win: {
         icon: '🪟', label: 'Windows detected', action: 'Download LibrarianOS',
-        ext: '.EXE installer · runs setup wizard',
+        ext: '.ZIP portable · extract and run',
         url: '/download/windows',
-        filename: 'LibraryManagementSystem-Setup.exe',
-        headerLabel: 'INST · WINDOWS · 2026',
+        filename: 'LibraryManagementSystem-Windows.zip',
+        headerLabel: 'PORT · WINDOWS · 2026',
         eyebrow: 'Detected: Windows',
         steps: [
-          'Click Download — <strong>LibraryManagementSystem-Setup.exe</strong> saves to your Downloads folder.',
-          'Double-click the <strong>.exe</strong> — the setup wizard opens. Click Next → Install.',
-          'Windows may show a SmartScreen prompt — click <em>More info → Run anyway</em> (the app is unsigned).',
-          'Launch <strong>LibrarianOS</strong> from the Start Menu. Enter your MySQL 8 host on first run.'
+          'Click Download — <strong>LibraryManagementSystem-Windows.zip</strong> saves to your Downloads folder.',
+          'Right-click the ZIP → <strong>Extract All</strong> → choose a folder (e.g. <em>C:\\Apps\\LibrarianOS</em>).',
+          'Open the extracted folder and double-click <strong>LibraryManagementSystem.exe</strong> to launch.',
+          'Enter your MySQL 8 connection on first launch. Tables are created automatically via Flyway.'
         ]
       },
       mac: {
