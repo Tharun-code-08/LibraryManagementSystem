@@ -31,11 +31,14 @@ import com.university.lms.dto.response.BookDTO;
 import com.university.lms.dto.response.CategoryDTO;
 import com.university.lms.dto.response.PublisherDTO;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.validation.ValidationResult;
+import com.university.lms.validation.impl.BookValidator;
 
 /** Add/Edit Book form. {@code AppContext.getNavigationParameter()} carries the book id to edit, if any. */
 public final class BookFormController implements Initializable {
 
     private final AppContext appContext;
+    private final BookValidator validator = new BookValidator();
     private Long editingBookId;
 
     @FXML
@@ -173,8 +176,26 @@ public final class BookFormController implements Initializable {
     @FXML
     private void onSave() {
         messageLabel.setText("");
-        saveButton.setDisable(true);
 
+        BigDecimal cost;
+        try {
+            cost = costField.getText().isBlank() ? BigDecimal.ZERO : new BigDecimal(costField.getText().trim());
+        } catch (NumberFormatException e) {
+            messageLabel.setText("Cost must be a valid number.");
+            return;
+        }
+
+        ValidationResult validation = validator.validate(BookRequestDTO.builder()
+                .title(titleField.getText())
+                .isbn(isbnField.getText())
+                .cost(cost)
+                .build());
+        if (!validation.isValid()) {
+            messageLabel.setText(String.join(" ", validation.getErrors()));
+            return;
+        }
+
+        saveButton.setDisable(true);
         appContext.getAsyncExecutor().run(this::resolveAuthorIdsAndSave,
                 bookDto -> {
                     saveButton.setDisable(false);
