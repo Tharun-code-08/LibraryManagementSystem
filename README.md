@@ -122,5 +122,19 @@ mvn test
   two opening or sending the generated file via the desktop's default handler) — reachable from
   the authenticated shell's "Reports" quick action.
 
+- **Phase 9 — Notifications**: complete. A `Notification` entity/repository (email/desktop
+  channel, category, read flag, sent timestamp) backs a `NotificationService` that dispatches
+  through a `NotificationFactory` selecting between an `EmailNotifier` (SMTP via Jakarta Mail —
+  `SmtpEmailServiceImpl`) and a `DesktopNotifierChannel` (OS system-tray balloon via
+  `DesktopNotifier`, a safe no-op wherever the tray is unavailable). Every dispatch attempt is
+  persisted regardless of delivery outcome, and delivery failures are caught and logged rather
+  than surfaced, so a broken mail relay never breaks the underlying business action.
+  `IssueService`/`ReturnService` now raise issue/return receipts and reservation-ready alerts as
+  a side effect of issuing, returning, and auto-promoting a reservation; a new scheduled sweep
+  (`NotificationService.runOverdueReminderSweep`, alongside the existing hourly reservation-expiry
+  sweep) reminds every open-overdue borrower once daily, skipping anyone already reminded that
+  day. UI: a "Notifications" quick action in the shell's top bar shows a live unread count and
+  opens a Notification Center listing recent notifications with mark-as-read.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 9).
+(Phase 10).

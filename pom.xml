@@ -28,6 +28,7 @@
         <zxing.version>3.5.3</zxing.version>
         <poi.version>5.3.0</poi.version>
         <pdfbox.version>3.0.3</pdfbox.version>
+        <angus-mail.version>2.0.3</angus-mail.version>
         <junit.version>5.11.3</junit.version>
         <mockito.version>5.14.2</mockito.version>
         <main.class>com.university.lms.LibraryManagementApplication</main.class>
@@ -131,6 +132,13 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>${pdfbox.version}</version>
+        </dependency>
+
+        <!-- Notifications: SMTP email -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <version>${angus-mail.version}</version>
         </dependency>
 
         <!-- Testing -->

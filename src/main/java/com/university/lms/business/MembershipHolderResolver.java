@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.university.lms.entity.Faculty;
 import com.university.lms.entity.HolderType;
 import com.university.lms.entity.Student;
+import com.university.lms.entity.User;
 import com.university.lms.repository.FacultyRepository;
 import com.university.lms.repository.StudentRepository;
 
@@ -45,5 +46,13 @@ public final class MembershipHolderResolver {
             return studentRepository.findById(holderId).map(s -> s.getUser().getUsername()).orElse("Unknown");
         }
         return facultyRepository.findById(holderId).map(f -> f.getUser().getUsername()).orElse("Unknown");
+    }
+
+    /** Resolves the linked {@link User} account of a membership holder, e.g. to send a notification. */
+    public Optional<User> resolveUser(HolderType holderType, Long holderId) {
+        if (holderType == HolderType.STUDENT) {
+            return studentRepository.findById(holderId).map(Student::getUser);
+        }
+        return facultyRepository.findById(holderId).map(Faculty::getUser);
     }
 }

@@ -2,6 +2,7 @@ package com.university.lms.service.circulation.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.university.lms.business.FineCalculationStrategy;
 import com.university.lms.business.MembershipHolderResolver;
@@ -15,6 +16,7 @@ import com.university.lms.entity.FineReason;
 import com.university.lms.entity.Issue;
 import com.university.lms.entity.IssueStatus;
 import com.university.lms.entity.Return;
+import com.university.lms.entity.Reservation;
 import com.university.lms.entity.ReturnCondition;
 import com.university.lms.entity.User;
 import com.university.lms.exception.NoOpenIssueException;
@@ -26,6 +28,7 @@ import com.university.lms.repository.ReturnRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.ReturnService;
+import com.university.lms.service.notification.NotificationService;
 
 public final class ReturnServiceImpl implements ReturnService {
 
@@ -38,12 +41,14 @@ public final class ReturnServiceImpl implements ReturnService {
     private final ReservationQueueManager reservationQueueManager;
     private final MembershipHolderResolver membershipHolderResolver;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
     public ReturnServiceImpl(IssueRepository issueRepository, BookCopyRepository bookCopyRepository,
                               ReturnRepository returnRepository, FineRepository fineRepository,
                               UserRepository userRepository, FineCalculationStrategy fineCalculationStrategy,
                               ReservationQueueManager reservationQueueManager,
-                              MembershipHolderResolver membershipHolderResolver, AuditLogService auditLogService) {
+                              MembershipHolderResolver membershipHolderResolver, AuditLogService auditLogService,
+                              NotificationService notificationService) {
         this.issueRepository = issueRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.returnRepository = returnRepository;
@@ -53,6 +58,7 @@ public final class ReturnServiceImpl implements ReturnService {
         this.reservationQueueManager = reservationQueueManager;
         this.membershipHolderResolver = membershipHolderResolver;
         this.auditLogService = auditLogService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -85,16 +91,19 @@ public final class ReturnServiceImpl implements ReturnService {
 
         boolean reservationPromoted = false;
         if (copy.getStatus() == BookCopyStatus.AVAILABLE) {
-            reservationPromoted = reservationQueueManager.promoteNextWaiting(copy.getBook().getId()).isPresent();
+            Optional<Reservation> promoted = reservationQueueManager.promoteNextWaiting(copy.getBook().getId());
+            reservationPromoted = promoted.isPresent();
             if (reservationPromoted) {
                 copy.setStatus(BookCopyStatus.RESERVED);
                 bookCopyRepository.save(copy);
+                notificationService.sendReservationReady(promoted.get());
             }
         }
 
         String memberName = membershipHolderResolver.resolveDisplayName(
                 issue.getMembership().getHolderType(), issue.getMembership().getHolderId());
         auditLogService.log(receivedByUserId, "BOOK_RETURNED", "Issue", issue.getId());
+        notificationService.sendReturnReceipt(savedReturn, fineAmount);
 
         return new ReturnResultDTO(savedReturn.getId(), copy.getBook().getTitle(), memberName,
                 returnDate, fineAmount, reservationPromoted);

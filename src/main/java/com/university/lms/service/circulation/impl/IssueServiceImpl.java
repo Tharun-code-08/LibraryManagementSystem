@@ -21,6 +21,7 @@ import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.IssueService;
+import com.university.lms.service.notification.NotificationService;
 
 public final class IssueServiceImpl implements IssueService {
 
@@ -31,11 +32,13 @@ public final class IssueServiceImpl implements IssueService {
     private final MembershipHolderResolver membershipHolderResolver;
     private final BorrowLimitValidator borrowLimitValidator;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
 
     public IssueServiceImpl(IssueRepository issueRepository, BookCopyRepository bookCopyRepository,
                              MembershipRepository membershipRepository, UserRepository userRepository,
                              MembershipHolderResolver membershipHolderResolver,
-                             BorrowLimitValidator borrowLimitValidator, AuditLogService auditLogService) {
+                             BorrowLimitValidator borrowLimitValidator, AuditLogService auditLogService,
+                             NotificationService notificationService) {
         this.issueRepository = issueRepository;
         this.bookCopyRepository = bookCopyRepository;
         this.membershipRepository = membershipRepository;
@@ -43,6 +46,7 @@ public final class IssueServiceImpl implements IssueService {
         this.membershipHolderResolver = membershipHolderResolver;
         this.borrowLimitValidator = borrowLimitValidator;
         this.auditLogService = auditLogService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -73,6 +77,7 @@ public final class IssueServiceImpl implements IssueService {
         bookCopyRepository.save(copy);
 
         auditLogService.log(issuedByUserId, "BOOK_ISSUED", "Issue", saved.getId());
+        notificationService.sendIssueReceipt(saved);
 
         return new IssueResultDTO(saved.getId(), copy.getBook().getTitle(), copy.getBarcode(),
                 holder.displayName(), request.memberIdentifier(), issueDate, dueDate);

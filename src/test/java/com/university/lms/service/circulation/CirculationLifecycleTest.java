@@ -51,6 +51,7 @@ import com.university.lms.repository.UserRepository;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.circulation.impl.IssueServiceImpl;
 import com.university.lms.service.circulation.impl.ReturnServiceImpl;
+import com.university.lms.service.notification.NotificationService;
 
 /**
  * Exercises the full Issue -> overdue Return -> Fine lifecycle against the real business-layer
@@ -91,6 +92,9 @@ class CirculationLifecycleTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private NotificationService notificationService;
+
     private IssueServiceImpl issueService;
     private ReturnServiceImpl returnService;
 
@@ -106,12 +110,13 @@ class CirculationLifecycleTest {
         MembershipHolderResolver holderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
         BorrowLimitValidator borrowLimitValidator = new BorrowLimitValidator();
         issueService = new IssueServiceImpl(issueRepository, bookCopyRepository, membershipRepository,
-                userRepository, holderResolver, borrowLimitValidator, auditLogService);
+                userRepository, holderResolver, borrowLimitValidator, auditLogService, notificationService);
 
         OverdueFineStrategy fineStrategy = new OverdueFineStrategy();
         ReservationQueueManager queueManager = new ReservationQueueManager(reservationRepository, 3);
         returnService = new ReturnServiceImpl(issueRepository, bookCopyRepository, returnRepository,
-                fineRepository, userRepository, fineStrategy, queueManager, holderResolver, auditLogService);
+                fineRepository, userRepository, fineStrategy, queueManager, holderResolver, auditLogService,
+                notificationService);
 
         membershipType = new MembershipType("STUDENT_STANDARD", 3, 14, BigDecimal.valueOf(5), 1, 2);
         User studentUser = new User("jdoe", "jdoe@university.edu", "hash", null);

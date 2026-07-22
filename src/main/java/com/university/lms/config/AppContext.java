@@ -32,6 +32,7 @@ import com.university.lms.repository.InvoiceRepository;
 import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.MembershipTypeRepository;
+import com.university.lms.repository.NotificationRepository;
 import com.university.lms.repository.PasswordResetTokenRepository;
 import com.university.lms.repository.PaymentRepository;
 import com.university.lms.repository.PublisherRepository;
@@ -59,6 +60,7 @@ import com.university.lms.repository.impl.HibernateInvoiceRepository;
 import com.university.lms.repository.impl.HibernateIssueRepository;
 import com.university.lms.repository.impl.HibernateMembershipRepository;
 import com.university.lms.repository.impl.HibernateMembershipTypeRepository;
+import com.university.lms.repository.impl.HibernateNotificationRepository;
 import com.university.lms.repository.impl.HibernatePasswordResetTokenRepository;
 import com.university.lms.repository.impl.HibernatePaymentRepository;
 import com.university.lms.repository.impl.HibernatePublisherRepository;
@@ -117,11 +119,20 @@ import com.university.lms.service.inventory.impl.InventoryAuditServiceImpl;
 import com.university.lms.service.inventory.impl.InvoiceServiceImpl;
 import com.university.lms.service.inventory.impl.PurchaseOrderServiceImpl;
 import com.university.lms.service.inventory.impl.SupplierServiceImpl;
+import com.university.lms.service.notification.EmailService;
+import com.university.lms.service.notification.NotificationFactory;
+import com.university.lms.service.notification.NotificationService;
+import com.university.lms.service.notification.Notifier;
+import com.university.lms.service.notification.impl.DesktopNotifierChannel;
+import com.university.lms.service.notification.impl.EmailNotifier;
+import com.university.lms.service.notification.impl.NotificationServiceImpl;
+import com.university.lms.service.notification.impl.SmtpEmailServiceImpl;
 import com.university.lms.service.report.ReportService;
 import com.university.lms.service.report.impl.ReportServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
+import com.university.lms.util.DesktopNotifier;
 import com.university.lms.util.ExcelReportExporter;
 import com.university.lms.util.FileStorageUtil;
 import com.university.lms.util.PdfReportExporter;
@@ -175,6 +186,7 @@ public final class AppContext {
     private final InventoryAuditRepository inventoryAuditRepository;
     private final InventoryAuditItemRepository inventoryAuditItemRepository;
     private final DashboardRepository dashboardRepository;
+    private final NotificationRepository notificationRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AuthContext authContext;
@@ -188,6 +200,9 @@ public final class AppContext {
     private final PdfReportExporter pdfReportExporter;
     private final ExcelReportExporter excelReportExporter;
     private final ReportFactory reportFactory;
+    private final EmailService emailService;
+    private final DesktopNotifier desktopNotifier;
+    private final NotificationFactory notificationFactory;
     private final BorrowLimitValidator borrowLimitValidator;
     private final FineCalculationStrategy fineCalculationStrategy;
     private final MembershipHolderResolver membershipHolderResolver;
@@ -215,6 +230,7 @@ public final class AppContext {
     private final InventoryAuditService inventoryAuditService;
     private final DashboardService dashboardService;
     private final ReportService reportService;
+    private final NotificationService notificationService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -254,6 +270,7 @@ public final class AppContext {
         this.inventoryAuditRepository = new HibernateInventoryAuditRepository(sessionFactory);
         this.inventoryAuditItemRepository = new HibernateInventoryAuditItemRepository(sessionFactory);
         this.dashboardRepository = new HibernateDashboardRepository(sessionFactory);
+        this.notificationRepository = new HibernateNotificationRepository(sessionFactory);
 
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.authContext = new AuthContext();
@@ -269,6 +286,17 @@ public final class AppContext {
         this.pdfReportExporter = new PdfReportExporter(reportsDirectory);
         this.excelReportExporter = new ExcelReportExporter(reportsDirectory);
         this.reportFactory = new ReportFactory(pdfReportExporter, excelReportExporter);
+        this.emailService = new SmtpEmailServiceImpl(
+                configurationManager.app("app.smtp.host", "localhost"),
+                Integer.parseInt(configurationManager.app("app.smtp.port", "587")),
+                configurationManager.app("app.smtp.username", ""),
+                configurationManager.app("app.smtp.password", ""),
+                configurationManager.app("app.smtp.from-address", "library@university.edu"),
+                Boolean.parseBoolean(configurationManager.app("app.smtp.auth-enabled", "false")),
+                Boolean.parseBoolean(configurationManager.app("app.smtp.starttls-enabled", "true")));
+        this.desktopNotifier = new DesktopNotifier();
+        this.notificationFactory = new NotificationFactory(
+                new EmailNotifier(emailService), new DesktopNotifierChannel(desktopNotifier));
         this.borrowLimitValidator = new BorrowLimitValidator();
         this.fineCalculationStrategy = new OverdueFineStrategy();
         this.membershipHolderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
@@ -302,18 +330,27 @@ public final class AppContext {
                 facultyRepository, userRepository, roleRepository, passwordEncoder,
                 membershipService, auditLogService, authContext, defaultMembershipValidityDays);
 
+        this.notificationService = new NotificationServiceImpl(
+                notificationRepository, issueRepository, membershipHolderResolver, notificationFactory);
+
         this.issueService = new IssueServiceImpl(
                 issueRepository, bookCopyRepository, membershipRepository, userRepository,
-                membershipHolderResolver, borrowLimitValidator, auditLogService);
+                membershipHolderResolver, borrowLimitValidator, auditLogService, notificationService);
         this.returnService = new ReturnServiceImpl(
                 issueRepository, bookCopyRepository, returnRepository, fineRepository, userRepository,
-                fineCalculationStrategy, reservationQueueManager, membershipHolderResolver, auditLogService);
+                fineCalculationStrategy, reservationQueueManager, membershipHolderResolver, auditLogService,
+                notificationService);
         this.reservationService = new ReservationServiceImpl(
                 reservationRepository, bookRepository, membershipRepository, membershipHolderResolver,
                 reservationQueueManager, auditLogService, authContext);
 
         this.scheduledExecutorService.scheduleAtFixedRate(
                 reservationService::expireStaleReservations, 1, 60, TimeUnit.MINUTES);
+
+        int overdueSweepIntervalHours = Integer.parseInt(
+                configurationManager.app("app.notifications.overdue-sweep-interval-hours", "24"));
+        this.scheduledExecutorService.scheduleAtFixedRate(
+                notificationService::runOverdueReminderSweep, 5, overdueSweepIntervalHours * 60L, TimeUnit.MINUTES);
 
         this.fineService = new FineServiceImpl(
                 fineRepository, issueRepository, paymentRepository, membershipHolderResolver, auditLogService, authContext);
@@ -470,6 +507,10 @@ public final class AppContext {
 
     public ReportService getReportService() {
         return reportService;
+    }
+
+    public NotificationService getNotificationService() {
+        return notificationService;
     }
 
     public ViewNavigator getViewNavigator() {

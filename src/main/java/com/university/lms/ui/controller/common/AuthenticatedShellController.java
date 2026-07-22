@@ -13,6 +13,7 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ToggleButton;
@@ -42,6 +43,9 @@ public final class AuthenticatedShellController implements Initializable {
 
     @FXML
     private Label welcomeLabel;
+
+    @FXML
+    private Button notificationsButton;
 
     @FXML
     private ToggleButton darkModeToggle;
@@ -102,6 +106,15 @@ public final class AuthenticatedShellController implements Initializable {
         });
 
         loadDashboard();
+        loadUnreadNotificationCount();
+    }
+
+    private void loadUnreadNotificationCount() {
+        Long userId = appContext.getAuthContext().getCurrentUser().getId();
+        appContext.getAsyncExecutor().run(
+                () -> appContext.getNotificationService().countUnread(userId),
+                count -> notificationsButton.setText(count > 0 ? "Notifications (" + count + ")" : "Notifications"),
+                throwable -> { /* badge simply stays unlabeled if it can't load */ });
     }
 
     private void loadDashboard() {
@@ -211,6 +224,11 @@ public final class AuthenticatedShellController implements Initializable {
     @FXML
     private void onChangePassword() {
         appContext.getViewNavigator().navigate("/fxml/auth/ChangePassword.fxml");
+    }
+
+    @FXML
+    private void onOpenNotifications() {
+        appContext.getViewNavigator().navigate("/fxml/notification/NotificationCenter.fxml");
     }
 
     @FXML
