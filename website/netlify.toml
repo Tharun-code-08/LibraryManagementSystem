@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+
+[[edge_functions]]
+  path = "/download/windows"
+  function = "download"
+
+[[edge_functions]]
+  path = "/download/macos"
+  function = "download"
+
+[[edge_functions]]
+  path = "/download/linux"
+  function = "download"

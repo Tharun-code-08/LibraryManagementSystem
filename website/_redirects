@@ -1,0 +1,1 @@
+# /download/* is handled by the edge function at netlify/edge-functions/download.js
