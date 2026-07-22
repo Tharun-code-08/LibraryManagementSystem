@@ -126,6 +126,7 @@
                         <Button text="Suppliers" onAction="#onOpenSuppliers" styleClass="primary-button"/>
                         <Button text="Purchase Orders" onAction="#onOpenPurchaseOrders" styleClass="primary-button"/>
                         <Button text="Inventory Audit" onAction="#onOpenInventoryAudit" styleClass="primary-button"/>
+                        <Button text="Reports" onAction="#onOpenReports" styleClass="primary-button"/>
                     </HBox>
                 </VBox>
             </VBox>

@@ -107,5 +107,20 @@ mvn test
   pie chart, a popular-books bar chart, and a recent-activity feed, above the existing quick
   actions.
 
+- **Phase 8 — Reports**: complete. A generic tabular report model (`ReportType`,
+  `ReportCriteriaDTO`, `ReportDTO`) backs ten report kinds — Books, Students, Faculty, Fines,
+  Issues, Returns, Overdue, Inventory, Lost Books, and Popular Books — reusing existing
+  service-layer search/list methods rather than duplicating queries, plus new
+  `IssueRepository.findByIssueDateRange`, `ReturnRepository.findByReturnDateRange`, and
+  `BookCopyRepository.findAll/findByStatus` queries for the reports that need them.
+  `ReportServiceImpl` filters by department, year, and/or date range where applicable and
+  resolves member names via the existing `MembershipHolderResolver`. A `ReportFactory` selects
+  between a PDFBox-based `PdfReportExporter` (paginated landscape tables with automatic header
+  repetition and cell truncation) and a POI-based `ExcelReportExporter` (single-sheet .xlsx) by
+  `ExportFormat`. UI: a Reports screen with a report-type selector, department/year/date-range
+  filters, an on-screen preview table, and Export PDF / Export Excel / Print actions (the last
+  two opening or sending the generated file via the desktop's default handler) — reachable from
+  the authenticated shell's "Reports" quick action.
+
 See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 8 — Reports: PDF/Excel export, print).
+(Phase 9).

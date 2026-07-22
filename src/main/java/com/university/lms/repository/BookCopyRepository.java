@@ -18,5 +18,9 @@ public interface BookCopyRepository {
 
     long countByBookIdAndStatus(Long bookId, BookCopyStatus status);
 
+    List<BookCopy> findAll();
+
+    List<BookCopy> findByStatus(BookCopyStatus status);
+
     BookCopy save(BookCopy bookCopy);
 }

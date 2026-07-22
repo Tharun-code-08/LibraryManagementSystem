@@ -17,5 +17,7 @@ public interface IssueRepository {
 
     List<Issue> findOverdueOpenIssues(LocalDateTime asOf);
 
+    List<Issue> findByIssueDateRange(LocalDateTime from, LocalDateTime to);
+
     Issue save(Issue issue);
 }

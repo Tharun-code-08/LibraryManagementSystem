@@ -117,12 +117,17 @@ import com.university.lms.service.inventory.impl.InventoryAuditServiceImpl;
 import com.university.lms.service.inventory.impl.InvoiceServiceImpl;
 import com.university.lms.service.inventory.impl.PurchaseOrderServiceImpl;
 import com.university.lms.service.inventory.impl.SupplierServiceImpl;
+import com.university.lms.service.report.ReportService;
+import com.university.lms.service.report.impl.ReportServiceImpl;
 import com.university.lms.ui.navigation.ViewNavigator;
 import com.university.lms.util.AsyncExecutor;
 import com.university.lms.util.BarcodeGenerator;
+import com.university.lms.util.ExcelReportExporter;
 import com.university.lms.util.FileStorageUtil;
+import com.university.lms.util.PdfReportExporter;
 import com.university.lms.util.QrCodeGenerator;
 import com.university.lms.util.ReceiptGenerator;
+import com.university.lms.util.ReportFactory;
 
 /**
  * Composition root of the application. Wires the configuration, connection pool, migration
@@ -180,6 +185,9 @@ public final class AppContext {
     private final QrCodeGenerator qrCodeGenerator;
     private final FileStorageUtil photoStorageUtil;
     private final ReceiptGenerator receiptGenerator;
+    private final PdfReportExporter pdfReportExporter;
+    private final ExcelReportExporter excelReportExporter;
+    private final ReportFactory reportFactory;
     private final BorrowLimitValidator borrowLimitValidator;
     private final FineCalculationStrategy fineCalculationStrategy;
     private final MembershipHolderResolver membershipHolderResolver;
@@ -206,6 +214,7 @@ public final class AppContext {
     private final InvoiceService invoiceService;
     private final InventoryAuditService inventoryAuditService;
     private final DashboardService dashboardService;
+    private final ReportService reportService;
 
     private ViewNavigator viewNavigator;
     private Object navigationParameter;
@@ -256,6 +265,10 @@ public final class AppContext {
         this.qrCodeGenerator = new QrCodeGenerator(Path.of(configurationManager.app("app.assets.qrcodes-directory", "./generated/qrcodes")));
         this.photoStorageUtil = new FileStorageUtil(Path.of(configurationManager.app("app.assets.photos-directory", "./generated/photos")));
         this.receiptGenerator = new ReceiptGenerator(Path.of(configurationManager.app("app.assets.receipts-directory", "./generated/receipts")));
+        Path reportsDirectory = Path.of(configurationManager.app("app.assets.reports-directory", "./generated/reports"));
+        this.pdfReportExporter = new PdfReportExporter(reportsDirectory);
+        this.excelReportExporter = new ExcelReportExporter(reportsDirectory);
+        this.reportFactory = new ReportFactory(pdfReportExporter, excelReportExporter);
         this.borrowLimitValidator = new BorrowLimitValidator();
         this.fineCalculationStrategy = new OverdueFineStrategy();
         this.membershipHolderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
@@ -317,6 +330,9 @@ public final class AppContext {
                 userRepository, auditLogService, authContext);
 
         this.dashboardService = new DashboardServiceImpl(dashboardRepository, auditLogRepository);
+        this.reportService = new ReportServiceImpl(
+                bookService, studentService, facultyService, fineService, issueRepository, returnRepository,
+                bookCopyRepository, dashboardService, membershipHolderResolver, reportFactory);
     }
 
     /**
@@ -450,6 +466,10 @@ public final class AppContext {
 
     public DashboardService getDashboardService() {
         return dashboardService;
+    }
+
+    public ReportService getReportService() {
+        return reportService;
     }
 
     public ViewNavigator getViewNavigator() {

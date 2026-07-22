@@ -63,6 +63,17 @@ public final class HibernateIssueRepository implements IssueRepository {
     }
 
     @Override
+    public List<Issue> findByIssueDateRange(LocalDateTime from, LocalDateTime to) {
+        try (org.hibernate.Session session = sessionFactory.openSession()) {
+            Query<Issue> query = session.createQuery(
+                    "from Issue i where i.issueDate >= :from and i.issueDate <= :to order by i.issueDate desc", Issue.class);
+            query.setParameter("from", from);
+            query.setParameter("to", to);
+            return query.list();
+        }
+    }
+
+    @Override
     public Issue save(Issue issue) {
         try (org.hibernate.Session session = sessionFactory.openSession()) {
             session.beginTransaction();

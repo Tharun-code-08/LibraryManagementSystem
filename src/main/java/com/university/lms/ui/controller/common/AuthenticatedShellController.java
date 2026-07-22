@@ -269,6 +269,11 @@ public final class AuthenticatedShellController implements Initializable {
     }
 
     @FXML
+    private void onOpenReports() {
+        appContext.getViewNavigator().navigate("/fxml/report/Report.fxml");
+    }
+
+    @FXML
     private void onToggleDarkMode() {
         Scene scene = darkModeToggle.getScene();
         scene.getStylesheets().removeIf(sheet -> sheet.endsWith("theme-light.css") || sheet.endsWith("theme-dark.css"));

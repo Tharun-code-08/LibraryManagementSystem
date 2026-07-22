@@ -65,6 +65,24 @@ public final class HibernateBookCopyRepository implements BookCopyRepository {
     }
 
     @Override
+    public List<BookCopy> findAll() {
+        try (org.hibernate.Session session = sessionFactory.openSession()) {
+            Query<BookCopy> query = session.createQuery("from BookCopy c order by c.id", BookCopy.class);
+            return query.list();
+        }
+    }
+
+    @Override
+    public List<BookCopy> findByStatus(BookCopyStatus status) {
+        try (org.hibernate.Session session = sessionFactory.openSession()) {
+            Query<BookCopy> query = session.createQuery(
+                    "from BookCopy c where c.status = :status order by c.id", BookCopy.class);
+            query.setParameter("status", status);
+            return query.list();
+        }
+    }
+
+    @Override
     public BookCopy save(BookCopy bookCopy) {
         try (org.hibernate.Session session = sessionFactory.openSession()) {
             session.beginTransaction();
