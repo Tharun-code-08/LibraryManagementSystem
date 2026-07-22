@@ -37,6 +37,7 @@ import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.PaymentRepository;
 import com.university.lms.repository.StudentRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.finance.impl.FineServiceImpl;
 
@@ -61,6 +62,9 @@ class FineServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private FineServiceImpl fineService;
     private Issue issue;
 
@@ -68,7 +72,7 @@ class FineServiceImplTest {
     void setUp() {
         MembershipHolderResolver holderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
         fineService = new FineServiceImpl(fineRepository, issueRepository, paymentRepository, holderResolver,
-                auditLogService, new AuthContext());
+                auditLogService, new AuthContext(), permissionEvaluator);
 
         MembershipType type = new MembershipType("STUDENT_STANDARD", 3, 14, BigDecimal.valueOf(5), 1, 2);
         Membership membership = new Membership(type, HolderType.STUDENT, 1L, LocalDate.now(), LocalDate.now().plusDays(300));

@@ -9,6 +9,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.SupplierRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.SupplierService;
 
@@ -17,15 +18,19 @@ public final class SupplierServiceImpl implements SupplierService {
     private final SupplierRepository supplierRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
-    public SupplierServiceImpl(SupplierRepository supplierRepository, AuditLogService auditLogService, AuthContext authContext) {
+    public SupplierServiceImpl(SupplierRepository supplierRepository, AuditLogService auditLogService,
+                                AuthContext authContext, PermissionEvaluator permissionEvaluator) {
         this.supplierRepository = supplierRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public SupplierDTO save(SupplierRequestDTO request) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         if (request.name() == null || request.name().isBlank()) {
             throw new IllegalArgumentException("Supplier name is required.");
         }
@@ -53,6 +58,7 @@ public final class SupplierServiceImpl implements SupplierService {
 
     @Override
     public void delete(Long id) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier", id));
         supplierRepository.delete(supplier);
         auditLogService.log(currentUserId(), "SUPPLIER_DELETED", "Supplier", id);

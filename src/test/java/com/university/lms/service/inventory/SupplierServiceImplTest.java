@@ -23,6 +23,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.SupplierRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.impl.SupplierServiceImpl;
 
@@ -35,11 +36,14 @@ class SupplierServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private SupplierServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new SupplierServiceImpl(supplierRepository, auditLogService, new AuthContext());
+        service = new SupplierServiceImpl(supplierRepository, auditLogService, new AuthContext(), permissionEvaluator);
         lenient().when(supplierRepository.save(any(Supplier.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }
 

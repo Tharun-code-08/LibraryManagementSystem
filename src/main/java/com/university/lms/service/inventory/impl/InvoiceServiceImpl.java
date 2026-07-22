@@ -13,6 +13,7 @@ import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.InvoiceRepository;
 import com.university.lms.repository.PurchaseOrderRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.InvoiceService;
 
@@ -22,17 +23,21 @@ public final class InvoiceServiceImpl implements InvoiceService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public InvoiceServiceImpl(InvoiceRepository invoiceRepository, PurchaseOrderRepository purchaseOrderRepository,
-                               AuditLogService auditLogService, AuthContext authContext) {
+                               AuditLogService auditLogService, AuthContext authContext,
+                               PermissionEvaluator permissionEvaluator) {
         this.invoiceRepository = invoiceRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public InvoiceDTO recordInvoice(InvoiceRequestDTO request) {
+        permissionEvaluator.requirePermission("PROCUREMENT_MANAGE");
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(request.purchaseOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseOrder", request.purchaseOrderId()));
         if (purchaseOrder.getStatus() != PurchaseOrderStatus.APPROVED && purchaseOrder.getStatus() != PurchaseOrderStatus.RECEIVED) {

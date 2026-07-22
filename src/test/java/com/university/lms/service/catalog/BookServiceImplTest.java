@@ -34,6 +34,7 @@ import com.university.lms.repository.CategoryRepository;
 import com.university.lms.repository.PublisherRepository;
 import com.university.lms.repository.TagRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.catalog.impl.BookServiceImpl;
 import com.university.lms.util.BarcodeGenerator;
@@ -66,6 +67,9 @@ class BookServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     @TempDir
     private Path tempDir;
 
@@ -80,7 +84,7 @@ class BookServiceImplTest {
         bookService = new BookServiceImpl(
                 bookRepository, bookCopyRepository, authorRepository, publisherRepository,
                 categoryRepository, tagRepository, branchRepository, barcodeGenerator,
-                qrCodeGenerator, auditLogService, authContext);
+                qrCodeGenerator, auditLogService, authContext, permissionEvaluator);
 
         lenient().when(bookRepository.save(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
         lenient().when(bookCopyRepository.countByBookId(any())).thenReturn(0L);

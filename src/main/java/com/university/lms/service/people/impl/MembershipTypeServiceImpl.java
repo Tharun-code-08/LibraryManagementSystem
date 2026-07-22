@@ -9,6 +9,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.MembershipTypeService;
 
@@ -17,16 +18,20 @@ public final class MembershipTypeServiceImpl implements MembershipTypeService {
     private final MembershipTypeRepository membershipTypeRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
     public MembershipTypeServiceImpl(MembershipTypeRepository membershipTypeRepository,
-                                      AuditLogService auditLogService, AuthContext authContext) {
+                                      AuditLogService auditLogService, AuthContext authContext,
+                                      PermissionEvaluator permissionEvaluator) {
         this.membershipTypeRepository = membershipTypeRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public MembershipTypeDTO save(MembershipTypeRequestDTO request) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         if (request.name() == null || request.name().isBlank()) {
             throw new IllegalArgumentException("Membership type name is required.");
         }

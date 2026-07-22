@@ -16,6 +16,7 @@ import com.university.lms.entity.User;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.BackupRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.admin.BackupService;
 import com.university.lms.service.admin.ProcessExecutor;
 import com.university.lms.service.auth.AuditLogService;
@@ -29,6 +30,7 @@ public final class BackupServiceImpl implements BackupService {
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
     private final ProcessExecutor processExecutor;
+    private final PermissionEvaluator permissionEvaluator;
     private final String host;
     private final int port;
     private final String database;
@@ -38,12 +40,14 @@ public final class BackupServiceImpl implements BackupService {
 
     public BackupServiceImpl(BackupRepository backupRepository, UserRepository userRepository,
                               AuditLogService auditLogService, ProcessExecutor processExecutor,
+                              PermissionEvaluator permissionEvaluator,
                               String host, int port, String database, String dbUsername, String dbPassword,
                               Path backupDirectory) {
         this.backupRepository = backupRepository;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
         this.processExecutor = processExecutor;
+        this.permissionEvaluator = permissionEvaluator;
         this.host = host;
         this.port = port;
         this.database = database;
@@ -54,11 +58,22 @@ public final class BackupServiceImpl implements BackupService {
 
     @Override
     public List<BackupDTO> listRecent(int limit) {
+        permissionEvaluator.requirePermission("SETTINGS_MANAGE");
         return backupRepository.findRecent(limit).stream().map(this::toDto).toList();
     }
 
     @Override
     public BackupDTO runBackup(Long actorUserId) {
+        permissionEvaluator.requirePermission("SETTINGS_MANAGE");
+        return doBackup(actorUserId);
+    }
+
+    @Override
+    public BackupDTO runScheduledBackup() {
+        return doBackup(null);
+    }
+
+    private BackupDTO doBackup(Long actorUserId) {
         User actor = actorUserId != null ? userRepository.findById(actorUserId).orElse(null) : null;
         String fileName = "backup-" + java.time.LocalDateTime.now().format(TIMESTAMP_FORMAT) + ".sql";
         Path outputPath = backupDirectory.resolve(fileName);
@@ -94,6 +109,7 @@ public final class BackupServiceImpl implements BackupService {
 
     @Override
     public boolean restoreBackup(Long backupId, Long actorUserId) {
+        permissionEvaluator.requirePermission("SETTINGS_MANAGE");
         Backup backup = backupRepository.findById(backupId)
                 .orElseThrow(() -> new ResourceNotFoundException("Backup", backupId));
 

@@ -18,6 +18,7 @@ import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.UserRepository;
 import com.university.lms.security.AuthContext;
 import com.university.lms.security.PasswordEncoder;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.FacultyService;
 import com.university.lms.service.people.MembershipService;
@@ -34,6 +35,7 @@ public final class FacultyServiceImpl implements FacultyService {
     private final MembershipService membershipService;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
     private final int defaultMembershipValidityDays;
 
     private final Validator<FacultyRegistrationRequestDTO> facultyValidator = new FacultyValidator();
@@ -41,7 +43,8 @@ public final class FacultyServiceImpl implements FacultyService {
     public FacultyServiceImpl(FacultyRepository facultyRepository, UserRepository userRepository,
                               RoleRepository roleRepository, PasswordEncoder passwordEncoder,
                               MembershipService membershipService, AuditLogService auditLogService,
-                              AuthContext authContext, int defaultMembershipValidityDays) {
+                              AuthContext authContext, PermissionEvaluator permissionEvaluator,
+                              int defaultMembershipValidityDays) {
         this.facultyRepository = facultyRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -49,11 +52,13 @@ public final class FacultyServiceImpl implements FacultyService {
         this.membershipService = membershipService;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
         this.defaultMembershipValidityDays = defaultMembershipValidityDays;
     }
 
     @Override
     public FacultyDTO register(FacultyRegistrationRequestDTO request) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         validate(request);
         userRepository.findByUsername(request.getUsername()).ifPresent(existing -> {
             throw new DuplicateResourceException("Username '" + request.getUsername() + "' is already taken.");
@@ -87,6 +92,7 @@ public final class FacultyServiceImpl implements FacultyService {
 
     @Override
     public FacultyDTO update(FacultyRegistrationRequestDTO request) {
+        permissionEvaluator.requirePermission("PEOPLE_MANAGE");
         if (request.getId() == null) {
             throw new IllegalArgumentException("Faculty id is required for an update.");
         }

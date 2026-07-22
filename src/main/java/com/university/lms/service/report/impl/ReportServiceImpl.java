@@ -24,6 +24,7 @@ import com.university.lms.entity.Return;
 import com.university.lms.repository.BookCopyRepository;
 import com.university.lms.repository.IssueRepository;
 import com.university.lms.repository.ReturnRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.analytics.DashboardService;
 import com.university.lms.service.catalog.BookService;
 import com.university.lms.service.finance.FineService;
@@ -48,11 +49,13 @@ public final class ReportServiceImpl implements ReportService {
     private final DashboardService dashboardService;
     private final MembershipHolderResolver membershipHolderResolver;
     private final ReportFactory reportFactory;
+    private final PermissionEvaluator permissionEvaluator;
 
     public ReportServiceImpl(BookService bookService, StudentService studentService, FacultyService facultyService,
                               FineService fineService, IssueRepository issueRepository, ReturnRepository returnRepository,
                               BookCopyRepository bookCopyRepository, DashboardService dashboardService,
-                              MembershipHolderResolver membershipHolderResolver, ReportFactory reportFactory) {
+                              MembershipHolderResolver membershipHolderResolver, ReportFactory reportFactory,
+                              PermissionEvaluator permissionEvaluator) {
         this.bookService = bookService;
         this.studentService = studentService;
         this.facultyService = facultyService;
@@ -63,10 +66,12 @@ public final class ReportServiceImpl implements ReportService {
         this.dashboardService = dashboardService;
         this.membershipHolderResolver = membershipHolderResolver;
         this.reportFactory = reportFactory;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public ReportDTO generate(ReportCriteriaDTO criteria) {
+        permissionEvaluator.requirePermission("REPORT_VIEW");
         return switch (criteria.getReportType()) {
             case BOOKS -> booksReport(criteria);
             case STUDENTS -> studentsReport(criteria);
@@ -83,6 +88,7 @@ public final class ReportServiceImpl implements ReportService {
 
     @Override
     public String export(ReportDTO report, ExportFormat format) {
+        permissionEvaluator.requirePermission("REPORT_VIEW");
         String fileBaseName = report.title().toLowerCase().replaceAll("[^a-z0-9]+", "-")
                 + "-" + report.generatedAt().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
         return reportFactory.exporterFor(format).export(report, fileBaseName);

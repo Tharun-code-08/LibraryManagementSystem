@@ -21,6 +21,7 @@ import com.university.lms.entity.MembershipType;
 import com.university.lms.repository.MembershipRepository;
 import com.university.lms.repository.MembershipTypeRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.people.impl.MembershipServiceImpl;
 
@@ -36,13 +37,16 @@ class MembershipServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private MembershipServiceImpl membershipService;
     private MembershipType studentStandard;
 
     @BeforeEach
     void setUp() {
         AuthContext authContext = new AuthContext();
-        membershipService = new MembershipServiceImpl(membershipRepository, membershipTypeRepository, auditLogService, authContext);
+        membershipService = new MembershipServiceImpl(membershipRepository, membershipTypeRepository, auditLogService, authContext, permissionEvaluator);
         studentStandard = new MembershipType("STUDENT_STANDARD", 3, 14, BigDecimal.valueOf(5), 1, 2);
 
         when(membershipTypeRepository.findById(1L)).thenReturn(Optional.of(studentStandard));

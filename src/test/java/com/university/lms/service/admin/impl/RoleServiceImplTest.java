@@ -25,6 +25,7 @@ import com.university.lms.entity.Role;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.PermissionRepository;
 import com.university.lms.repository.RoleRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +40,9 @@ class RoleServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private RoleServiceImpl service;
     private Role role;
     private Permission bookView;
@@ -46,7 +50,7 @@ class RoleServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new RoleServiceImpl(roleRepository, permissionRepository, auditLogService);
+        service = new RoleServiceImpl(roleRepository, permissionRepository, auditLogService, permissionEvaluator);
         role = new Role("LIBRARIAN", "Day-to-day library operations staff");
         bookView = new Permission("BOOK_VIEW", "View book catalog");
         bookManage = new Permission("BOOK_MANAGE", "Create/edit/delete/restore books");

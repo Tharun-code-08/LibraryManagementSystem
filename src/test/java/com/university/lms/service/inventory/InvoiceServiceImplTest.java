@@ -28,6 +28,7 @@ import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.InvoiceRepository;
 import com.university.lms.repository.PurchaseOrderRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.inventory.impl.InvoiceServiceImpl;
 
@@ -43,12 +44,15 @@ class InvoiceServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private InvoiceServiceImpl service;
     private PurchaseOrder purchaseOrder;
 
     @BeforeEach
     void setUp() {
-        service = new InvoiceServiceImpl(invoiceRepository, purchaseOrderRepository, auditLogService, new AuthContext());
+        service = new InvoiceServiceImpl(invoiceRepository, purchaseOrderRepository, auditLogService, new AuthContext(), permissionEvaluator);
         purchaseOrder = new PurchaseOrder(null, null, LocalDate.now(), BigDecimal.valueOf(500));
         lenient().when(invoiceRepository.save(any(Invoice.class))).thenAnswer(invocation -> invocation.getArgument(0));
     }

@@ -19,6 +19,7 @@ import com.university.lms.entity.Setting;
 import com.university.lms.entity.User;
 import com.university.lms.repository.SettingRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,11 +34,14 @@ class SettingsServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private SettingsServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new SettingsServiceImpl(settingRepository, userRepository, auditLogService);
+        service = new SettingsServiceImpl(settingRepository, userRepository, auditLogService, permissionEvaluator);
         lenient().when(settingRepository.save(any(Setting.class))).thenAnswer(invocation -> invocation.getArgument(0));
         lenient().when(userRepository.findById(100L))
                 .thenReturn(Optional.of(new User("admin", "admin@library.local", "hash", null)));

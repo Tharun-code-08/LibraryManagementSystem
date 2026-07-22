@@ -41,6 +41,7 @@ import com.university.lms.repository.FineRepository;
 import com.university.lms.repository.PaymentRepository;
 import com.university.lms.repository.StudentRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.finance.impl.PaymentServiceImpl;
 import com.university.lms.util.ReceiptGenerator;
@@ -66,6 +67,9 @@ class PaymentServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     @TempDir
     private Path tempDir;
 
@@ -77,7 +81,7 @@ class PaymentServiceImplTest {
         MembershipHolderResolver holderResolver = new MembershipHolderResolver(studentRepository, facultyRepository);
         ReceiptGenerator receiptGenerator = new ReceiptGenerator(tempDir.resolve("receipts"));
         paymentService = new PaymentServiceImpl(fineRepository, paymentRepository, userRepository,
-                holderResolver, receiptGenerator, auditLogService);
+                holderResolver, receiptGenerator, auditLogService, permissionEvaluator);
 
         MembershipType type = new MembershipType("STUDENT_STANDARD", 3, 14, BigDecimal.valueOf(5), 1, 2);
         Membership membership = new Membership(type, HolderType.STUDENT, 1L, LocalDate.now(), LocalDate.now().plusDays(300));

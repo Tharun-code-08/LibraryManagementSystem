@@ -12,6 +12,7 @@ import com.university.lms.entity.UserStatus;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.admin.UserManagementService;
 import com.university.lms.service.auth.AuditLogService;
 
@@ -20,21 +21,25 @@ public final class UserManagementServiceImpl implements UserManagementService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AuditLogService auditLogService;
+    private final PermissionEvaluator permissionEvaluator;
 
     public UserManagementServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
-                                      AuditLogService auditLogService) {
+                                      AuditLogService auditLogService, PermissionEvaluator permissionEvaluator) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.auditLogService = auditLogService;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public List<UserSummaryDTO> listUsers() {
+        permissionEvaluator.requirePermission("USER_MANAGE");
         return userRepository.findAll().stream().map(this::toDto).toList();
     }
 
     @Override
     public UserSummaryDTO setStatus(Long userId, UserStatus status, Long actorUserId) {
+        permissionEvaluator.requirePermission("USER_MANAGE");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         user.setStatus(status);
@@ -45,6 +50,7 @@ public final class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public UserSummaryDTO assignRoles(Long userId, Set<Long> roleIds, Long actorUserId) {
+        permissionEvaluator.requirePermission("USER_MANAGE");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
         Set<Role> roles = new HashSet<>();

@@ -24,6 +24,7 @@ import com.university.lms.entity.UserStatus;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.RoleRepository;
 import com.university.lms.repository.UserRepository;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,13 +39,16 @@ class UserManagementServiceImplTest {
     @Mock
     private AuditLogService auditLogService;
 
+    @Mock
+    private PermissionEvaluator permissionEvaluator;
+
     private UserManagementServiceImpl service;
     private User user;
     private Role librarianRole;
 
     @BeforeEach
     void setUp() {
-        service = new UserManagementServiceImpl(userRepository, roleRepository, auditLogService);
+        service = new UserManagementServiceImpl(userRepository, roleRepository, auditLogService, permissionEvaluator);
         user = new User("jdoe", "jdoe@university.edu", "hash", null);
         librarianRole = new Role("LIBRARIAN", "Day-to-day library operations staff");
         lenient().when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));

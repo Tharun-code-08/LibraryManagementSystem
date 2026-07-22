@@ -10,6 +10,7 @@ import com.university.lms.exception.DuplicateResourceException;
 import com.university.lms.exception.ResourceNotFoundException;
 import com.university.lms.repository.CategoryRepository;
 import com.university.lms.security.AuthContext;
+import com.university.lms.security.PermissionEvaluator;
 import com.university.lms.service.auth.AuditLogService;
 import com.university.lms.service.catalog.CategoryService;
 
@@ -18,15 +19,19 @@ public final class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final AuditLogService auditLogService;
     private final AuthContext authContext;
+    private final PermissionEvaluator permissionEvaluator;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, AuditLogService auditLogService, AuthContext authContext) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, AuditLogService auditLogService,
+                                AuthContext authContext, PermissionEvaluator permissionEvaluator) {
         this.categoryRepository = categoryRepository;
         this.auditLogService = auditLogService;
         this.authContext = authContext;
+        this.permissionEvaluator = permissionEvaluator;
     }
 
     @Override
     public CategoryDTO save(CategoryRequestDTO request) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         if (request.name() == null || request.name().isBlank()) {
             throw new IllegalArgumentException("Category name is required.");
         }
@@ -57,6 +62,7 @@ public final class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Long id) {
+        permissionEvaluator.requirePermission("BOOK_MANAGE");
         Category category = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category", id));
         boolean hasChildren = categoryRepository.findAll().stream().anyMatch(c -> Objects.equals(parentIdOf(c), id));
         if (hasChildren) {
