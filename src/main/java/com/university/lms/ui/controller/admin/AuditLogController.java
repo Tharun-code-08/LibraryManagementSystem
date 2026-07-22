@@ -24,7 +24,7 @@ import com.university.lms.dto.request.AuditLogSearchCriteria;
 import com.university.lms.dto.response.AuditLogEntryDTO;
 import com.university.lms.dto.response.ReportDTO;
 import com.university.lms.model.Page;
-import com.university.lms.service.report.ExportFormat;
+import com.university.lms.util.ExportFormat;
 
 /** Admin screen: a filterable, paginated view over the append-only audit trail, with export. */
 public final class AuditLogController implements Initializable {

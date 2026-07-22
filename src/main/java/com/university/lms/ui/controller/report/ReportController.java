@@ -24,8 +24,8 @@ import com.university.lms.config.AppContext;
 import com.university.lms.dto.request.ReportCriteriaDTO;
 import com.university.lms.dto.response.ReportDTO;
 import com.university.lms.exception.BusinessException;
-import com.university.lms.service.report.ExportFormat;
 import com.university.lms.service.report.ReportType;
+import com.university.lms.util.ExportFormat;
 
 /** Generic reports screen: pick a report type and filters, preview a table, then export/print. */
 public final class ReportController implements Initializable {

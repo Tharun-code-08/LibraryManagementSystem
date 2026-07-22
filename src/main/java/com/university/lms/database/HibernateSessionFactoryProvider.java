@@ -1,5 +1,7 @@
 package com.university.lms.database;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
@@ -48,6 +50,22 @@ import com.university.lms.entity.UserSession;
  */
 public final class HibernateSessionFactoryProvider {
 
+    /**
+     * Every JPA entity in the application, registered explicitly rather than via package
+     * scanning. A class missing from this list compiles fine and every Mockito-based unit test
+     * still passes (nothing here touches a real database) — it only fails at runtime against a
+     * real database, which is exactly the class of bug {@code ArchitectureAndMappingTest}
+     * guards against by asserting this list matches every {@code @Entity} class on the compiled
+     * classpath. Keep this the single place new entities are added.
+     */
+    public static final List<Class<?>> ENTITY_CLASSES = List.of(
+            Branch.class, Permission.class, Role.class, User.class, UserSession.class,
+            PasswordResetToken.class, AuditLog.class, Author.class, Publisher.class, Category.class,
+            Tag.class, Book.class, BookCopy.class, Student.class, Faculty.class, MembershipType.class,
+            Membership.class, Issue.class, Return.class, Reservation.class, Fine.class, Payment.class,
+            Supplier.class, PurchaseOrder.class, PurchaseOrderItem.class, Invoice.class, InventoryAudit.class,
+            InventoryAuditItem.class, Notification.class, Setting.class, Backup.class);
+
     private HibernateSessionFactoryProvider() {
     }
 
@@ -61,39 +79,7 @@ public final class HibernateSessionFactoryProvider {
 
         ServiceRegistry serviceRegistry = registryBuilder.build();
         MetadataSources metadataSources = new MetadataSources(serviceRegistry);
-
-        // Entity classes are added here as each module's persistence layer is implemented.
-        metadataSources.addAnnotatedClass(Branch.class);
-        metadataSources.addAnnotatedClass(Permission.class);
-        metadataSources.addAnnotatedClass(Role.class);
-        metadataSources.addAnnotatedClass(User.class);
-        metadataSources.addAnnotatedClass(UserSession.class);
-        metadataSources.addAnnotatedClass(PasswordResetToken.class);
-        metadataSources.addAnnotatedClass(AuditLog.class);
-        metadataSources.addAnnotatedClass(Author.class);
-        metadataSources.addAnnotatedClass(Publisher.class);
-        metadataSources.addAnnotatedClass(Category.class);
-        metadataSources.addAnnotatedClass(Tag.class);
-        metadataSources.addAnnotatedClass(Book.class);
-        metadataSources.addAnnotatedClass(BookCopy.class);
-        metadataSources.addAnnotatedClass(Student.class);
-        metadataSources.addAnnotatedClass(Faculty.class);
-        metadataSources.addAnnotatedClass(MembershipType.class);
-        metadataSources.addAnnotatedClass(Membership.class);
-        metadataSources.addAnnotatedClass(Issue.class);
-        metadataSources.addAnnotatedClass(Return.class);
-        metadataSources.addAnnotatedClass(Reservation.class);
-        metadataSources.addAnnotatedClass(Fine.class);
-        metadataSources.addAnnotatedClass(Payment.class);
-        metadataSources.addAnnotatedClass(Supplier.class);
-        metadataSources.addAnnotatedClass(PurchaseOrder.class);
-        metadataSources.addAnnotatedClass(PurchaseOrderItem.class);
-        metadataSources.addAnnotatedClass(Invoice.class);
-        metadataSources.addAnnotatedClass(InventoryAudit.class);
-        metadataSources.addAnnotatedClass(InventoryAuditItem.class);
-        metadataSources.addAnnotatedClass(Notification.class);
-        metadataSources.addAnnotatedClass(Setting.class);
-        metadataSources.addAnnotatedClass(Backup.class);
+        ENTITY_CLASSES.forEach(metadataSources::addAnnotatedClass);
 
         return metadataSources.buildMetadata().buildSessionFactory();
     }

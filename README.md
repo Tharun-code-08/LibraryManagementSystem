@@ -33,6 +33,18 @@ mvn javafx:run
 mvn test
 ```
 
+### Packaging a native installer
+```bash
+mvn -Ppackage-installer clean package
+```
+Produces a runnable app-image (bundled JRE, no separate Java install needed) under
+`target/dist/`. jpackage cannot cross-compile, so **run this on each target OS** to get that
+OS's artifact:
+- Linux: add `-Djpackage.type=deb` or `=rpm` for an installable package (needs `dpkg-deb` or
+  `rpmbuild` on `PATH`) — the default `APP_IMAGE` type needs neither and works everywhere.
+- Windows: `-Djpackage.type=msi` or `=exe` (needs the [WiX Toolset](https://wixtoolset.org/)).
+- macOS: `-Djpackage.type=pkg` or `=dmg` (needs Xcode command line tools).
+
 ## Project Status
 - **Phase 0 — Project Bootstrap**: complete. Maven project skeleton, layered package structure,
   Flyway-managed database schema, Hibernate + HikariCP wiring, the DI composition root
@@ -167,5 +179,31 @@ mvn test
   a new `-color-on-primary` (white) token, chosen because `-color-primary` itself is too light
   in the dark theme for white text to clear 4.5:1.
 
-See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) for what's next
-(Phase 12).
+- **Phase 12 — Hardening & QA**: complete. Filled six service-layer test gaps (`AuthorService`,
+  `PublisherService`, `CategoryService`, `SupplierService`, `InvoiceService`,
+  `MembershipTypeService` — every service impl now has direct Mockito coverage). Added an
+  ArchUnit `LayerDependencyTest` enforcing the Clean Architecture layering end to end (entity/
+  repository/service/business/util must never depend upward into ui, repository, or service as
+  appropriate) — fixing the one real violation it caught, `util.ReportFactory` importing
+  `ExportFormat` out of `service.report` (moved to `util`, its natural home, since both the
+  service and the exporters need it). Added `EntityRegistrationTest`, a reflection-based
+  regression guard for the exact bug class hit twice already (`Notification` in Phase 9, then
+  `Setting`/`Backup` in Phase 10 — both fixed then, confirmed still fixed now): it scans every
+  `@Entity` class on the compiled classpath and fails if one isn't in
+  `HibernateSessionFactoryProvider.ENTITY_CLASSES`, which that class now exposes as a single
+  source of truth instead of a chain of `addAnnotatedClass` calls. Added a Testcontainers-backed
+  `BookRepositoryIntegrationTest` — applies the real Flyway migrations and builds a real
+  Hibernate `SessionFactory` against a MySQL container, the sandbox-independent counterpart to
+  every prior phase's "no live database" caveat; it skips itself cleanly wherever no Docker
+  daemon is reachable (confirmed in this sandbox) rather than failing the build, and runs for
+  real on any Docker-capable machine. Performance pass: a new `V9` migration indexes three range/
+  filter query patterns added by later phases that the original schema's composite indexes
+  didn't cover — `issues.issue_date` and `returns.return_date` (Phase 8's date-range reports),
+  and `notifications(user_id, category, created_at)` (Phase 9's per-user reminder dedup check).
+  Packaging: a `package-installer` Maven profile wraps `jpackage` (copy-dependencies + the app
+  jar into a flat classpath dir, then `org.panteleyev:jpackage-maven-plugin`) — verified
+  end-to-end in this sandbox, producing a real runnable Linux app-image; Windows/macOS installers
+  need the same profile run on those OSes, since `jpackage` never cross-compiles.
+
+See [`docs/13-ImplementationRoadmap.md`](docs/13-ImplementationRoadmap.md) — all twelve phases
+of the roadmap are now complete.
