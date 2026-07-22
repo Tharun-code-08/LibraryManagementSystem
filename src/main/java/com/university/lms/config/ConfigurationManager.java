@@ -45,4 +45,17 @@ public final class ConfigurationManager {
     public String db(String key, String defaultValue) {
         return databaseProperties.getProperty(key, defaultValue);
     }
+
+    /** @throws IllegalStateException if {@code key} is missing or blank in database.properties
+     *  (or its external override) — fails fast at boot instead of surfacing as an obscure NPE
+     *  deep inside HikariCP. */
+    public String requireDb(String key) {
+        String value = databaseProperties.getProperty(key);
+        if (value == null || value.isBlank()) {
+            throw new IllegalStateException(
+                    "Required database configuration key '" + key + "' is missing or blank. "
+                            + "Set it in database.properties or an external override on the classpath.");
+        }
+        return value;
+    }
 }

@@ -63,6 +63,10 @@ public class UserSession {
         return token;
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
