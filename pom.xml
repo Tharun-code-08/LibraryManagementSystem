@@ -264,6 +264,9 @@
                                 <configuration>
                                     <outputDirectory>${project.build.directory}/app</outputDirectory>
                                     <includeScope>runtime</includeScope>
+                                    <!-- JavaFX comes from the bundled Liberica JDK Full runtime;
+                                         exclude the Maven JARs to avoid a duplicate on the classpath. -->
+                                    <excludeGroupIds>org.openjfx</excludeGroupIds>
                                 </configuration>
                             </execution>
                         </executions>
@@ -312,14 +315,13 @@
                             <mainJar>${project.build.finalName}.jar</mainJar>
                             <mainClass>${main.class}</mainClass>
                             <type>${jpackage.type}</type>
-                            <!-- Without these options the bundled JRE cannot locate JavaFX
-                                 modules at runtime — the app silently crashes on launch.
-                                 $APPDIR expands to the installation directory at runtime. -->
+                            <!-- Tell jlink to pull JavaFX modules from Liberica JDK Full into
+                                 the bundled runtime. The launcher then resolves them as system
+                                 modules — no --module-path trick needed at runtime. -->
+                            <addModules>javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.swing</addModules>
                             <javaOptions>
-                                <option>--module-path $APPDIR</option>
-                                <option>--add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.base</option>
+                                <option>--add-opens=javafx.fxml/com.sun.javafx.fxml=ALL-UNNAMED</option>
                                 <option>--add-opens=javafx.graphics/com.sun.javafx.application=ALL-UNNAMED</option>
-                                <option>--add-opens=java.base/java.lang=ALL-UNNAMED</option>
                             </javaOptions>
                         </configuration>
                     </plugin>
