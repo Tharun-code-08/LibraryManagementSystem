@@ -23,6 +23,7 @@ import com.university.lms.dto.response.RoleDTO;
 import com.university.lms.dto.response.UserSummaryDTO;
 import com.university.lms.entity.UserStatus;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Admin screen: user directory with account-status changes and role assignment. */
 public final class UserManagementController implements Initializable {
@@ -72,6 +73,7 @@ public final class UserManagementController implements Initializable {
 
         statusCombo.setItems(FXCollections.observableArrayList(UserStatus.values()));
         saveButton.setDisable(true);
+        userTable.setPlaceholder(TablePlaceholders.noResults("No users found."));
 
         userTable.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             selectedUser = newValue;
@@ -92,10 +94,18 @@ public final class UserManagementController implements Initializable {
     }
 
     private void loadUsers() {
+        userTable.setItems(FXCollections.observableArrayList());
+        userTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getUserManagementService().listUsers(),
-                users -> userTable.setItems(FXCollections.observableArrayList(users)),
-                throwable -> errorLabel.setText("Unable to load users right now."));
+                users -> {
+                    userTable.setPlaceholder(TablePlaceholders.noResults("No users found."));
+                    userTable.setItems(FXCollections.observableArrayList(users));
+                },
+                throwable -> {
+                    userTable.setPlaceholder(TablePlaceholders.noResults("No users found."));
+                    errorLabel.setText("Unable to load users right now.");
+                });
     }
 
     private void onUserSelected(UserSummaryDTO user) {

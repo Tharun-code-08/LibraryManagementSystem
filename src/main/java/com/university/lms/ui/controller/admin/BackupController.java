@@ -18,6 +18,7 @@ import javafx.scene.layout.HBox;
 
 import com.university.lms.config.AppContext;
 import com.university.lms.dto.response.BackupDTO;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Admin screen: run an on-demand database backup, view history, and restore from a past backup. */
 public final class BackupController implements Initializable {
@@ -61,6 +62,8 @@ public final class BackupController implements Initializable {
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
         createdAtColumn.setCellValueFactory(data ->
                 new javafx.beans.property.SimpleStringProperty(String.valueOf(data.getValue().createdAt())));
+
+        backupTable.setPlaceholder(TablePlaceholders.noResults("No backups found."));
 
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button restoreButton = new Button("Restore");
@@ -119,10 +122,18 @@ public final class BackupController implements Initializable {
     }
 
     private void loadBackups() {
+        backupTable.setItems(FXCollections.observableArrayList());
+        backupTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getBackupService().listRecent(HISTORY_LIMIT),
-                backups -> backupTable.setItems(FXCollections.observableArrayList(backups)),
-                throwable -> statusLabel.setText("Unable to load backup history right now."));
+                backups -> {
+                    backupTable.setPlaceholder(TablePlaceholders.noResults("No backups found."));
+                    backupTable.setItems(FXCollections.observableArrayList(backups));
+                },
+                throwable -> {
+                    backupTable.setPlaceholder(TablePlaceholders.noResults("No backups found."));
+                    statusLabel.setText("Unable to load backup history right now.");
+                });
     }
 
     @FXML

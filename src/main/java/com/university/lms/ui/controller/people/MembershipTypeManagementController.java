@@ -17,6 +17,7 @@ import com.university.lms.config.AppContext;
 import com.university.lms.dto.request.MembershipTypeRequestDTO;
 import com.university.lms.dto.response.MembershipTypeDTO;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Membership type reference-data management: max borrow limit, loan period, fine rules. */
 public final class MembershipTypeManagementController implements Initializable {
@@ -69,14 +70,23 @@ public final class MembershipTypeManagementController implements Initializable {
         borrowLimitColumn.setCellValueFactory(new PropertyValueFactory<>("maxBorrowLimit"));
         loanPeriodColumn.setCellValueFactory(new PropertyValueFactory<>("loanPeriodDays"));
         finePerDayColumn.setCellValueFactory(new PropertyValueFactory<>("finePerDay"));
+        typeTable.setPlaceholder(TablePlaceholders.noResults("No membership types found."));
         loadTypes();
     }
 
     private void loadTypes() {
+        typeTable.setItems(FXCollections.observableArrayList());
+        typeTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getMembershipTypeService().listAll(),
-                types -> typeTable.setItems(FXCollections.observableArrayList(types)),
-                throwable -> messageLabel.setText("Unable to load membership types."));
+                types -> {
+                    typeTable.setPlaceholder(TablePlaceholders.noResults("No membership types found."));
+                    typeTable.setItems(FXCollections.observableArrayList(types));
+                },
+                throwable -> {
+                    typeTable.setPlaceholder(TablePlaceholders.noResults("No membership types found."));
+                    messageLabel.setText("Unable to load membership types.");
+                });
     }
 
     @FXML

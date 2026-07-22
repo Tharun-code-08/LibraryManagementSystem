@@ -16,6 +16,7 @@ import javafx.util.Callback;
 
 import com.university.lms.config.AppContext;
 import com.university.lms.dto.response.SettingDTO;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Admin screen: editable list of persisted system settings (theme, locale, borrow rules, ...). */
 public final class SettingsController implements Initializable {
@@ -47,6 +48,7 @@ public final class SettingsController implements Initializable {
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("value"));
         valueColumn.setCellFactory(editableValueCellFactory());
+        settingsTable.setPlaceholder(TablePlaceholders.noResults("No settings found."));
 
         loadSettings();
     }
@@ -95,10 +97,19 @@ public final class SettingsController implements Initializable {
     }
 
     private void loadSettings() {
+        errorLabel.setText("");
+        settingsTable.setItems(FXCollections.observableArrayList());
+        settingsTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getSettingsService().listAll(),
-                settings -> settingsTable.setItems(FXCollections.observableArrayList(settings)),
-                throwable -> errorLabel.setText("Unable to load settings right now."));
+                settings -> {
+                    settingsTable.setPlaceholder(TablePlaceholders.noResults("No settings found."));
+                    settingsTable.setItems(FXCollections.observableArrayList(settings));
+                },
+                throwable -> {
+                    settingsTable.setPlaceholder(TablePlaceholders.noResults("No settings found."));
+                    errorLabel.setText("Unable to load settings right now.");
+                });
     }
 
     @FXML

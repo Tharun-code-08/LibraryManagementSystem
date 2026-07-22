@@ -22,6 +22,7 @@ import com.university.lms.dto.response.InvoiceDTO;
 import com.university.lms.dto.response.PurchaseOrderDTO;
 import com.university.lms.dto.response.PurchaseOrderItemDTO;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Purchase order detail: approval-workflow actions plus invoice recording. */
 public final class PurchaseOrderDetailController implements Initializable {
@@ -85,6 +86,7 @@ public final class PurchaseOrderDetailController implements Initializable {
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         unitCostColumn.setCellValueFactory(new PropertyValueFactory<>("unitCost"));
         lineTotalColumn.setCellValueFactory(new PropertyValueFactory<>("lineTotal"));
+        itemsTable.setPlaceholder(TablePlaceholders.noResults("No line items."));
 
         if (purchaseOrderId == null) {
             summaryLabel.setText("No purchase order selected.");
@@ -94,11 +96,19 @@ public final class PurchaseOrderDetailController implements Initializable {
     }
 
     private void loadOrder() {
+        itemsTable.setItems(FXCollections.observableArrayList());
+        itemsTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getPurchaseOrderService().getById(purchaseOrderId),
                 orderOptional -> orderOptional.ifPresentOrElse(this::populate,
-                        () -> summaryLabel.setText("Purchase order not found.")),
-                throwable -> messageLabel.setText("Unable to load purchase order."));
+                        () -> {
+                            itemsTable.setPlaceholder(TablePlaceholders.noResults("No line items."));
+                            summaryLabel.setText("Purchase order not found.");
+                        }),
+                throwable -> {
+                    itemsTable.setPlaceholder(TablePlaceholders.noResults("No line items."));
+                    messageLabel.setText("Unable to load purchase order.");
+                });
     }
 
     private void populate(PurchaseOrderDTO order) {
@@ -106,6 +116,7 @@ public final class PurchaseOrderDetailController implements Initializable {
                 + " | Status: " + order.getStatus() + " | Total: " + order.getTotalCost()
                 + " | Budget: " + order.getBudgetAmount()
                 + (order.getApprovedByName() != null ? " | Approved by: " + order.getApprovedByName() : ""));
+        itemsTable.setPlaceholder(TablePlaceholders.noResults("No line items."));
         itemsTable.setItems(FXCollections.observableArrayList(order.getItems()));
 
         String status = order.getStatus();

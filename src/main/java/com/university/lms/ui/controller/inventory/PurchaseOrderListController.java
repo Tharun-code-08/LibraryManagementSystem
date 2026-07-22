@@ -20,6 +20,7 @@ import com.university.lms.dto.request.PurchaseOrderSearchCriteria;
 import com.university.lms.dto.response.PurchaseOrderDTO;
 import com.university.lms.exception.BusinessException;
 import com.university.lms.model.Page;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Purchase order list: filter by status, pagination, and jump to the detail/approval screen. */
 public final class PurchaseOrderListController implements Initializable {
@@ -78,6 +79,8 @@ public final class PurchaseOrderListController implements Initializable {
                 "All", "DRAFT", "PENDING_APPROVAL", "APPROVED", "RECEIVED", "CANCELLED"));
         statusFilter.getSelectionModel().selectFirst();
 
+        orderTable.setPlaceholder(TablePlaceholders.noResults("No purchase orders found."));
+
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button viewButton = new Button("Manage");
 
@@ -130,6 +133,8 @@ public final class PurchaseOrderListController implements Initializable {
 
     private void loadPage(int pageNumber) {
         errorLabel.setText("");
+        orderTable.setItems(FXCollections.observableArrayList());
+        orderTable.setPlaceholder(TablePlaceholders.loading());
         String status = statusFilter.getValue();
         PurchaseOrderSearchCriteria criteria = PurchaseOrderSearchCriteria.builder()
                 .status("All".equals(status) ? null : status)
@@ -140,13 +145,17 @@ public final class PurchaseOrderListController implements Initializable {
         appContext.getAsyncExecutor().run(
                 () -> appContext.getPurchaseOrderService().search(criteria),
                 this::onPageLoaded,
-                throwable -> errorLabel.setText(throwable instanceof BusinessException
-                        ? throwable.getMessage() : "Unable to load purchase orders right now."));
+                throwable -> {
+                    orderTable.setPlaceholder(TablePlaceholders.noResults("No purchase orders found."));
+                    errorLabel.setText(throwable instanceof BusinessException
+                            ? throwable.getMessage() : "Unable to load purchase orders right now.");
+                });
     }
 
     private void onPageLoaded(Page<PurchaseOrderDTO> page) {
         currentPage = page.getPageNumber();
         totalElements = page.getTotalElements();
+        orderTable.setPlaceholder(TablePlaceholders.noResults("No purchase orders found."));
         orderTable.setItems(FXCollections.observableArrayList(page.getContent()));
         int totalPages = Math.max(page.getTotalPages(), 1);
         pageLabel.setText("Page " + (currentPage + 1) + " of " + totalPages + " (" + totalElements + " orders)");

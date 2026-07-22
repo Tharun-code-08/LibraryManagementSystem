@@ -20,6 +20,7 @@ import com.university.lms.dto.request.StudentSearchCriteria;
 import com.university.lms.dto.response.StudentDTO;
 import com.university.lms.exception.BusinessException;
 import com.university.lms.model.Page;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Student directory: keyword search, and pagination. */
 public final class StudentListController implements Initializable {
@@ -83,6 +84,8 @@ public final class StudentListController implements Initializable {
         membershipColumn.setCellValueFactory(data -> new SimpleStringProperty(
                 data.getValue().getMembershipTypeName() == null ? "None" : data.getValue().getMembershipTypeName()));
 
+        studentTable.setPlaceholder(TablePlaceholders.noResults("No students found."));
+
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button editButton = new Button("Edit");
 
@@ -140,6 +143,8 @@ public final class StudentListController implements Initializable {
 
     private void loadPage(int pageNumber) {
         errorLabel.setText("");
+        studentTable.setItems(FXCollections.observableArrayList());
+        studentTable.setPlaceholder(TablePlaceholders.loading());
         StudentSearchCriteria criteria = StudentSearchCriteria.builder()
                 .keyword(searchField.getText())
                 .pageNumber(pageNumber)
@@ -149,13 +154,17 @@ public final class StudentListController implements Initializable {
         appContext.getAsyncExecutor().run(
                 () -> appContext.getStudentService().search(criteria),
                 this::onPageLoaded,
-                throwable -> errorLabel.setText(throwable instanceof BusinessException
-                        ? throwable.getMessage() : "Unable to load students right now."));
+                throwable -> {
+                    studentTable.setPlaceholder(TablePlaceholders.noResults("No students found."));
+                    errorLabel.setText(throwable instanceof BusinessException
+                            ? throwable.getMessage() : "Unable to load students right now.");
+                });
     }
 
     private void onPageLoaded(Page<StudentDTO> page) {
         currentPage = page.getPageNumber();
         totalElements = page.getTotalElements();
+        studentTable.setPlaceholder(TablePlaceholders.noResults("No students found."));
         studentTable.setItems(FXCollections.observableArrayList(page.getContent()));
         int totalPages = Math.max(page.getTotalPages(), 1);
         pageLabel.setText("Page " + (currentPage + 1) + " of " + totalPages + " (" + totalElements + " students)");

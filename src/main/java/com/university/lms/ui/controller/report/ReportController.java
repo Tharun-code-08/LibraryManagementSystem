@@ -25,6 +25,7 @@ import com.university.lms.dto.request.ReportCriteriaDTO;
 import com.university.lms.dto.response.ReportDTO;
 import com.university.lms.exception.BusinessException;
 import com.university.lms.service.report.ReportType;
+import com.university.lms.ui.util.TablePlaceholders;
 import com.university.lms.util.ExportFormat;
 
 /** Generic reports screen: pick a report type and filters, preview a table, then export/print. */
@@ -75,6 +76,7 @@ public final class ReportController implements Initializable {
         reportTypeCombo.setItems(FXCollections.observableArrayList(ReportType.values()));
         reportTypeCombo.getSelectionModel().selectFirst();
         setExportButtonsDisabled(true);
+        reportTable.setPlaceholder(TablePlaceholders.noResults("Choose a report type and click Generate."));
     }
 
     @FXML
@@ -110,16 +112,23 @@ public final class ReportController implements Initializable {
                 .build();
 
         setExportButtonsDisabled(true);
+        reportTable.getColumns().clear();
+        reportTable.setItems(FXCollections.observableArrayList());
+        reportTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getReportService().generate(criteria),
                 this::onReportGenerated,
-                throwable -> errorLabel.setText(throwable instanceof BusinessException
-                        ? throwable.getMessage() : "Unable to generate this report right now."));
+                throwable -> {
+                    reportTable.setPlaceholder(TablePlaceholders.noResults("No data for this report."));
+                    errorLabel.setText(throwable instanceof BusinessException
+                            ? throwable.getMessage() : "Unable to generate this report right now.");
+                });
     }
 
     private void onReportGenerated(ReportDTO report) {
         this.currentReport = report;
         titleLabel.setText(report.title() + " (" + report.rows().size() + " rows)");
+        reportTable.setPlaceholder(TablePlaceholders.noResults("No data for this report."));
         renderTable(report);
         setExportButtonsDisabled(report.rows().isEmpty());
     }

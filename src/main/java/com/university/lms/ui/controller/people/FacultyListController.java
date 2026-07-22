@@ -17,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import com.university.lms.config.AppContext;
 import com.university.lms.dto.response.FacultyDTO;
 import com.university.lms.exception.BusinessException;
+import com.university.lms.ui.util.TablePlaceholders;
 
 /** Faculty directory: a simple full listing (faculty headcount is small relative to students). */
 public final class FacultyListController implements Initializable {
@@ -60,6 +61,8 @@ public final class FacultyListController implements Initializable {
         membershipColumn.setCellValueFactory(data -> new SimpleStringProperty(
                 data.getValue().getMembershipTypeName() == null ? "None" : data.getValue().getMembershipTypeName()));
 
+        facultyTable.setPlaceholder(TablePlaceholders.noResults("No faculty found."));
+
         actionsColumn.setCellFactory(column -> new TableCell<>() {
             private final Button editButton = new Button("Edit");
 
@@ -82,11 +85,20 @@ public final class FacultyListController implements Initializable {
     }
 
     private void loadFaculty() {
+        errorLabel.setText("");
+        facultyTable.setItems(FXCollections.observableArrayList());
+        facultyTable.setPlaceholder(TablePlaceholders.loading());
         appContext.getAsyncExecutor().run(
                 () -> appContext.getFacultyService().listAll(),
-                list -> facultyTable.setItems(FXCollections.observableArrayList(list)),
-                throwable -> errorLabel.setText(throwable instanceof BusinessException
-                        ? throwable.getMessage() : "Unable to load faculty right now."));
+                list -> {
+                    facultyTable.setPlaceholder(TablePlaceholders.noResults("No faculty found."));
+                    facultyTable.setItems(FXCollections.observableArrayList(list));
+                },
+                throwable -> {
+                    facultyTable.setPlaceholder(TablePlaceholders.noResults("No faculty found."));
+                    errorLabel.setText(throwable instanceof BusinessException
+                            ? throwable.getMessage() : "Unable to load faculty right now.");
+                });
     }
 
     @FXML
